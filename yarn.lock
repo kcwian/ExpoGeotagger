@@ -2872,6 +2872,11 @@ cross-spawn@^7.0.0:
     shebang-command "^2.0.0"
     which "^2.0.1"
 
+crypto-js@^3.1.9-1:
+  version "3.3.0"
+  resolved "https://registry.yarnpkg.com/crypto-js/-/crypto-js-3.3.0.tgz#846dd1cce2f68aacfa156c8578f926a609b7976b"
+  integrity sha512-DIT51nX0dCfKltpRiXV+/TVZq+Qq2NgF4644+K7Ttnla7zEzqc+kjJyiB96BHNyUTBxyjzRcZYpUdZa+QAqi6Q==
+
 crypto-random-string@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/crypto-random-string/-/crypto-random-string-1.0.0.tgz#a230f64f568310e1498009940790ec99545bca7e"
@@ -3262,6 +3267,11 @@ expo-barcode-scanner@~11.2.0:
   dependencies:
     "@expo/config-plugins" "^4.0.2"
     expo-image-loader "~3.1.0"
+
+expo-blur@~11.0.0:
+  version "11.0.0"
+  resolved "https://registry.yarnpkg.com/expo-blur/-/expo-blur-11.0.0.tgz#3542afed5c0037554657d98c31a5933dd78098dd"
+  integrity sha512-EmIYXFwaqvVDhV4JnG9+nENU7FGZkCcuYZhoOOHjnHyADCGNsT6LIVv9/Q/rO0+qWJJxlUG6bziPHC2wbWcC9A==
 
 expo-camera@~12.1.2:
   version "12.1.2"
@@ -5047,7 +5057,7 @@ lodash@^3.10.1:
   resolved "https://registry.yarnpkg.com/lodash/-/lodash-3.10.1.tgz#5bf45e8e49ba4189e17d482789dfd15bd140b7b6"
   integrity sha1-W/Rejkm6QYnhfUgnid/RW9FAt7Y=
 
-lodash@^4.17.14, lodash@^4.17.15, lodash@^4.17.19, lodash@^4.7.0:
+lodash@^4.17.14, lodash@^4.17.15, lodash@^4.17.19, lodash@^4.17.4, lodash@^4.7.0:
   version "4.17.21"
   resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.21.tgz#679591c564c3bffaae8454cf0b3df370c3d6911c"
   integrity sha512-v2kDEe57lecTulaDIuNTPy3Ry4gLGJ6Z1O3vE1krgXZNrsQ+LFTGHVxVjcXPs17LhbZVGedAJv8XZ1tvj5FvSg==
@@ -6181,6 +6191,21 @@ react-native-codegen@^0.0.6:
     flow-parser "^0.121.0"
     jscodeshift "^0.11.0"
     nullthrows "^1.1.1"
+
+react-native-expo-fancy-alerts@^2.1.0:
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/react-native-expo-fancy-alerts/-/react-native-expo-fancy-alerts-2.1.0.tgz#2b05dd7022eb3080898483825fd4b04f9730c81c"
+  integrity sha512-3OA8z3Zs+tk371SKG+GlI1zG+iyOV/douaUPzqeNP+nyGUZTHcypKFMhxR+mSVcSM+R+/MKQk16l4eKS4HNG1w==
+  dependencies:
+    prop-types "^15.7.2"
+
+react-native-expo-image-cache@^4.1.0:
+  version "4.1.0"
+  resolved "https://registry.yarnpkg.com/react-native-expo-image-cache/-/react-native-expo-image-cache-4.1.0.tgz#649cbe9786249134d3eafed5baba50bbfa80c029"
+  integrity sha512-U6xHtuyalNZThhM11lu4+mRNSpJFkdh4dSLbWkKAj5QfY63cKlTnDVtv8c88njn71GHL4exEzf8hNKBMWhH37Q==
+  dependencies:
+    crypto-js "^3.1.9-1"
+    lodash "^4.17.4"
 
 react-native-image-picker@^4.7.3:
   version "4.7.3"

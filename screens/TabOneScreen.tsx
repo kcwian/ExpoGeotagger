@@ -2,7 +2,7 @@ import { StyleSheet, Dimensions,TouchableOpacity } from 'react-native';
 import EditScreenInfo from '../components/EditScreenInfo';
 import { Text, View } from '../components/Themed';
 import { RootTabScreenProps } from '../types';
-import MapView from 'react-native-maps';
+import MapView, {Marker} from 'react-native-maps';
 import { Camera } from 'expo-camera';
 
 export default function TabOneScreen({ navigation }: RootTabScreenProps<'TabOne'>) {
@@ -11,8 +11,16 @@ export default function TabOneScreen({ navigation }: RootTabScreenProps<'TabOne'
       <Text style={styles.title}>Tab One</Text>
       <View style={styles.separator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
       {/* <EditScreenInfo path="/screens/TabOneScreen.tsx" /> */}
-      <Text> Cos tutaj dodalem</Text>
-      <MapView style={styles.map} />
+      {/* <Text> Cos tutaj dodalem</Text> */}
+
+      <MapView style={styles.map}>
+
+        <Marker
+          coordinate={{ latitude: 37.78825, longitude: -122.4324 }}
+        // image={{uri: 'custom_pin'}}
+        />
+      </MapView>
+
     </View>
   );
 }
