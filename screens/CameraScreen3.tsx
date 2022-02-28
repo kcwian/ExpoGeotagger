@@ -53,10 +53,6 @@ export default function CameraScreen3() {
   const { manifest } = Constants;
   const serverUri = `http://${manifest.debuggerHost.split(':').shift()}:5000`;
 
-  let getGPSStatus = async (isMounted) => {
-      //GET request
-  }
-
 
   let openImagePickerAsync = async () => {
       ImagePicker.launchCameraAsync({
