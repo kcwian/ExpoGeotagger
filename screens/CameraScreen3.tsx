@@ -8,7 +8,7 @@ import { useState, useEffect } from 'react';
 import Constants from "expo-constants";
 import * as Permissions from 'expo-permissions';
 
-export default function CameraScreen() {
+export default function CameraScreen3() {
   const [image, setImage] = useState(null)
   const [gpsStatus, setGPSStatus] = useState(null)
 

@@ -14,7 +14,7 @@ import Colors from '../constants/Colors';
 import useColorScheme from '../hooks/useColorScheme';
 import ModalScreen from '../screens/ModalScreen';
 import NotFoundScreen from '../screens/NotFoundScreen';
-import TabOneScreen from '../screens/TabOneScreen';
+import MapScreen from '../screens/MapScreen';
 import CameraScreen3 from '../screens/CameraScreen3';
 import CameraScreen from '../screens/CameraScreen';
 import { RootStackParamList, RootTabParamList, RootTabScreenProps } from '../types';
@@ -84,10 +84,11 @@ function BottomTabNavigator() {
         }}
       />
       <BottomTab.Screen
-        name="TabOne"
-        component={TabOneScreen}
-        options={({ navigation }: RootTabScreenProps<'TabOne'>) => ({
+        name="Map"
+        component={MapScreen}
+        options={({ navigation }: RootTabScreenProps<'Map'>) => ({
           title: 'Map',
+          unmountOnBlur: true,
           tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
           headerRight: () => (
             <Pressable
