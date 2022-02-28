@@ -1,4 +1,4 @@
-import { StyleSheet, Dimensions, TouchableOpacity } from 'react-native';
+import { StyleSheet, Dimensions, TouchableOpacity, Platform } from 'react-native';
 import React, { useState, useEffect } from 'react';
 import EditScreenInfo from '../components/EditScreenInfo';
 import { Text, View } from '../components/Themed';
@@ -36,7 +36,6 @@ export default function CameraScreen() {
     useEffect(() => {
       
     const interval = setInterval(() => {
-      console.log('Fitst Camera');
       getGPSStatus();
     }, 1000);
     return () => clearInterval(interval);
@@ -68,40 +67,21 @@ export default function CameraScreen() {
   let takePicture = async () => {
 
     if (cameraRef) {
-      // let sizes = cameraRef.getAvailablePictureSizesAsync('4:3');
-      // const ratios = await cameraRef.getSupportedRatiosAsync();
-      // for (const ratio of ratios) {
-      //   console.log(ratio);
-      // }
-      // const sizes =
-      // let strings = [ ... ]
-    //  let promises =  cameraRef.getAvailablePictureSizesAsync();
-    //   Promise.all(promises).then(results => {
-    // // results is a new array of results corresponding to the "promised" results
-    // console.log(results);
-    // for (res in results){
-    //   console.log(res);
-    // }
-    //   });
       let photo = await cameraRef.takePictureAsync({
         exif: true,
         autoFocus: Camera.Constants.AutoFocus.on,
-        // ratio: "4:3",
         quality: 1,
-        // pictureSize: 
       }).then().catch(console.error);
       let localUri = photo.uri;
       let filename = localUri.split('/').pop();
-      // console.log("Photo uri:",localUri);
-      // console.log("Filename", filename);
       // Infer the type of the image
       let match = /\.(\w+)$/.exec(filename);
       let type = match ? `image/${match[1]}` : `image`;
-
       // Upload the image using the fetch and FormData APIs
       let formData = new FormData();
       // Assume "photo" is the name of the form field the server expects
       formData.append('image', { uri: localUri, name: filename, type });
+      formData.append('platform', Platform.OS);
       console.log("Sending image");
       fetch(serverUri + '/image', {
         method: 'POST',
@@ -118,13 +98,26 @@ export default function CameraScreen() {
           FileSystem.writeAsStringAsync(filenameImage, base64Code, {
             encoding: FileSystem.EncodingType.Base64,
           }).then(() => {
+            FileSystem.getInfoAsync(filenameImage);
             console.log("Saved to SDCard")
             console.log(filenameImage);
-            MediaLibrary.createAssetAsync(filenameImage).then(() => {
-              FileSystem.deleteAsync(localUri);
-              FileSystem.deleteAsync(filenameImage);
-              toggleSuccesAlert();
-              console.log("Deleted cache");
+            MediaLibrary.createAssetAsync(filenameImage).then((asset) => {
+              MediaLibrary.getAssetInfoAsync(asset, {shouldDownloadFromNetwork: true}).then( (res2) => {
+                console.log(res2);
+                alert(res2.location?.latitude);
+              });
+              MediaLibrary.getAlbumAsync('Geotagger').then((album) => {
+                if (album == null) {
+                  MediaLibrary.createAlbumAsync('Geotagger', asset, false);
+                } else {
+                  MediaLibrary.addAssetsToAlbumAsync([asset], album, false);
+                }
+              }).then(() => {
+                FileSystem.deleteAsync(localUri);
+                FileSystem.deleteAsync(filenameImage);
+                toggleSuccesAlert();
+                console.log("Deleted cache");
+              });
             });
           });
         });
@@ -166,11 +159,6 @@ export default function CameraScreen() {
             style={styles.button}
             onPress={
               takePicture
-              // setType(
-              //   type === Camera.Constants.Type.back
-              //     ? Camera.Constants.Type.front
-              //     : Camera.Constants.Type.back
-              // );
             }>
             <Text style={styles.text}> GPS Status {gpsStatus} </Text>
           </TouchableOpacity>

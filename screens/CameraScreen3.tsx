@@ -25,18 +25,8 @@ export default function CameraScreen3() {
   }, []);
 
   useEffect(() => {
+    let isMounted = true;
     const interval = setInterval(() => {
-      console.log('Second Camera');
-      getGPSStatus();
-    }, 1000);
-    return () => clearInterval(interval);
-  }, []);
-
-  const { manifest } = Constants;
-  const serverUri = `http://${manifest.debuggerHost.split(':').shift()}:5000`;
-
-  let getGPSStatus = async () => {
-      //GET request
       fetch(serverUri + '/dgps', {
         method: 'GET',
       })
@@ -44,15 +34,27 @@ export default function CameraScreen3() {
         //If response is in json then in success
         .then((responseJson) => {
           //Success
-          setGPSStatus(responseJson["status"]);
+          if(isMounted)
+            setGPSStatus(responseJson["status"]);
         })
         //If response is not in json then in error
         .catch((error) => {
-          //Error
-          // alert(JSON.stringify(error));
-          // console.error(error);
-          setGPSStatus("Connection error");
+          if (isMounted)
+            setGPSStatus("Connection error");
         });
+    }, 1000);
+    return () => {
+      clearInterval(interval);
+      isMounted = false
+    };
+
+  }, []);
+
+  const { manifest } = Constants;
+  const serverUri = `http://${manifest.debuggerHost.split(':').shift()}:5000`;
+
+  let getGPSStatus = async (isMounted) => {
+      //GET request
   }
 
 
@@ -77,6 +79,7 @@ export default function CameraScreen3() {
       let formData = new FormData();
       // Assume "photo" is the name of the form field the server expects
       formData.append('image', { uri: localUri, name: filename, type });
+      formData.append('platform', Platform.OS);
       console.log("Sending image");
       fetch(serverUri + '/image', {
         method: 'POST',
