@@ -1,4 +1,4 @@
-import { StyleSheet, Dimensions, TouchableOpacity, Platform } from 'react-native';
+import { StyleSheet, Dimensions, TouchableOpacity, Platform, ActivityIndicator } from 'react-native';
 import React, { useState, useEffect } from 'react';
 import EditScreenInfo from '../components/EditScreenInfo';
 import { Text, View } from '../components/Themed';
@@ -8,81 +8,143 @@ import * as FileSystem from 'expo-file-system';
 import Constants from "expo-constants";
 import { AutoFocus } from 'expo-camera/build/Camera.types';
 import { FancyAlert } from 'react-native-expo-fancy-alerts';
+import { Colors } from 'react-native/Libraries/NewAppScreen';
+import { LoadingIndicator } from 'react-native-expo-fancy-alerts';
+import { selectIsLoading } from 'selectors';
+
 
 export default function CameraScreen() {
   const [hasPermission, setHasPermission] = useState(null);
   const [cameraRef, setCameraRef] = useState(null)
-  const [mediaRef, setMediaRef] = useState(MediaLibrary)
   const [type, setType] = useState(Camera.Constants.Type.back);
   const [errorVisible, setErrorVisible] = React.useState(false);
-  const [gpsStatus, setGPSStatus] = useState(null)
+  const [succesVisible, setSuccesVisible] = React.useState(false);
+  const [alertConfirmVisible, setAlertConfirmVisible] = useState(false);
+  const [mainButtonStatus, setMainButtonStatus] = useState(null);
+  const [lastGPSMsg, setLastGPSMsg] = useState(null);
+  const [additionalText, setAdditionalText] = useState(null);
+  const [activityRunning, setActivityRunning] = useState(false);
+
+  const { manifest } = Constants;
+  const serverUri = `http://${manifest.debuggerHost.split(':').shift()}:5000`;
+  const msgNoConnection = "No connection to server";
+  const msgPressPhoto = "Press to take photo";
+  const msgGPSDataNotChanging = "Error: GPS data is not changing";
+  const msgCapturingImage = "Taking Photo";
+  const msgGettingGPS = "Getting GPS data";
+  const msgSendingImage = "Sending Image";
 
   const toggleErrorAlert = React.useCallback(() => {
     setErrorVisible(!errorVisible);
   }, [errorVisible]);
-  const [succesVisible, setSuccesVisible] = React.useState(false);
   const toggleSuccesAlert = React.useCallback(() => {
     setSuccesVisible(!succesVisible);
   }, [succesVisible]);
+  const toggleConfirmAlert = React.useCallback(() => {
+    setAlertConfirmVisible(!alertConfirmVisible);
+  }, [alertConfirmVisible]);
 
   useEffect(() => {
     (async () => {
-      const res1 = await Camera.requestCameraPermissionsAsync();
-      const res = await MediaLibrary.requestPermissionsAsync(false);
-      setHasPermission(res.granted && res1.granted);
+      const resCamera = await Camera.requestCameraPermissionsAsync();
+      const resMedia = await MediaLibrary.requestPermissionsAsync(false);
+      setHasPermission(resMedia.granted && resCamera.granted);
     })();
   }, []);
 
-    useEffect(() => {
-      
+  useEffect(() => {
+    let isMounted = true;
     const interval = setInterval(() => {
-      getGPSStatus();
-    }, 1000);
-    return () => clearInterval(interval);
-  }, []);
-
-  const { manifest } = Constants;
-  const serverUri = `http://${manifest.debuggerHost.split(':').shift()}:5000`;
-
-  let getGPSStatus = async () => {
       //GET request
-      fetch(serverUri + '/dgps', {
+      fetch(serverUri + '/lastMessage', {
         method: 'GET',
       })
         .then((response) => response.json())
-        //If response is in json then in success
         .then((responseJson) => {
-          //Success
-          setGPSStatus(responseJson["status"]);
+          if (isMounted) {
+            if (lastGPSMsg != null && responseJson["seq"] === lastGPSMsg["seq"]){
+              setMainButtonStatus(null);
+              setAdditionalText(msgGPSDataNotChanging);
+            }
+            else {
+              setLastGPSMsg(responseJson);
+              setMainButtonStatus(responseJson["status"]); // GPS status
+              if (additionalText === msgGPSDataNotChanging || additionalText === msgNoConnection || additionalText == null)
+                setAdditionalText(msgPressPhoto);
+            }
+          }
         })
-        //If response is not in json then in error
         .catch((error) => {
-          //Error
-          // alert(JSON.stringify(error));
-          // console.error(error);
-          setGPSStatus("Connection error");
+          if (isMounted) {
+            setMainButtonStatus(null);
+            setAdditionalText(msgNoConnection);
+          }
         });
+    }, 1000);
+    return () => {
+      clearInterval(interval);
+      isMounted = false;
+    }
+  }, [lastGPSMsg]);
+
+  let handleAlertConfirmCancel = async () => {
+    toggleConfirmAlert()
+  };
+
+  let handleAlertConfirmOK = async () => {
+    toggleConfirmAlert()
+    takePicture();
+  };
+
+  let handleMainButton = async () => {
+    if (mainButtonStatus == 3){
+      takePicture();
+    }
+    else if (mainButtonStatus == null){
+      
+    }
+    else{
+      toggleConfirmAlert();
+    }
   };
 
   let takePicture = async () => {
 
-    if (cameraRef) {
+    setAdditionalText(msgGettingGPS);
+    setActivityRunning(true);
+    let actualMsgForGeotag = null;
+    // Get last GPS coordinates
+    await fetch(serverUri + '/lastMessage', {
+      method: 'GET',
+    })
+      .then((response) => response.json())
+      .then((responseJson) => {
+        actualMsgForGeotag = responseJson;
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+    setAdditionalText(msgSendingImage);
+    if (cameraRef && actualMsgForGeotag) {
       let photo = await cameraRef.takePictureAsync({
         exif: true,
         autoFocus: Camera.Constants.AutoFocus.on,
         quality: 1,
-      }).then().catch(console.error);
-      let localUri = photo.uri;
-      let filename = localUri.split('/').pop();
+      }).catch(console.error);
+      console.log("Photo taken");
+      let localPhotoUri = photo.uri;
+      let filename = localPhotoUri.split('/').pop();
       // Infer the type of the image
       let match = /\.(\w+)$/.exec(filename);
       let type = match ? `image/${match[1]}` : `image`;
       // Upload the image using the fetch and FormData APIs
       let formData = new FormData();
       // Assume "photo" is the name of the form field the server expects
-      formData.append('image', { uri: localUri, name: filename, type });
+      setAdditionalText(msgSendingImage);
+      formData.append('image', { uri: localPhotoUri, name: filename, type });
       formData.append('platform', Platform.OS);
-      console.log("Sending image");
+      formData.append('GPS', JSON.stringify(actualMsgForGeotag));
+      console.log("Sending Image");
       fetch(serverUri + '/image', {
         method: 'POST',
         body: formData,
@@ -90,22 +152,20 @@ export default function CameraScreen() {
           'content-type': 'multipart/form-data',
         },
       }).then(response => {
+        // setAdditionalText("Received image from server");
+        setAdditionalText(msgPressPhoto);
+        setActivityRunning(false);
         response.json().then(json => {
           let base64Code = json["base64"];
           let imageName = json['name']
           console.log("Received image");
-          const filenameImage = FileSystem.documentDirectory + imageName;
-          FileSystem.writeAsStringAsync(filenameImage, base64Code, {
+          const filePhotoUri = FileSystem.documentDirectory + imageName;
+          FileSystem.writeAsStringAsync(filePhotoUri, base64Code, {
             encoding: FileSystem.EncodingType.Base64,
           }).then(() => {
-            FileSystem.getInfoAsync(filenameImage);
-            console.log("Saved to SDCard")
-            console.log(filenameImage);
-            MediaLibrary.createAssetAsync(filenameImage).then((asset) => {
-              MediaLibrary.getAssetInfoAsync(asset, {shouldDownloadFromNetwork: true}).then( (res2) => {
-                console.log(res2);
-                alert(res2.location?.latitude);
-              });
+            FileSystem.getInfoAsync(filePhotoUri);
+            console.log("Saved to SD Card")
+            MediaLibrary.createAssetAsync(filePhotoUri).then((asset) => {
               MediaLibrary.getAlbumAsync('Geotagger').then((album) => {
                 if (album == null) {
                   MediaLibrary.createAlbumAsync('Geotagger', asset, false);
@@ -113,36 +173,40 @@ export default function CameraScreen() {
                   MediaLibrary.addAssetsToAlbumAsync([asset], album, false);
                 }
               }).then(() => {
-                FileSystem.deleteAsync(localUri);
-                FileSystem.deleteAsync(filenameImage);
-                toggleSuccesAlert();
+                FileSystem.deleteAsync(localPhotoUri);
+                FileSystem.deleteAsync(filePhotoUri);
+                // toggleSuccesAlert();
                 console.log("Deleted cache");
               });
             });
           });
         });
       }).catch((error) => {
-        FileSystem.deleteAsync(localUri);
-        console.log("Deleted cache");
+        setActivityRunning(false);
+        FileSystem.deleteAsync(localPhotoUri);
         console.log(error);
+        // setAdditionalText("No connection to server");
         // alert("No connection to image server. Photo was not saved");
-        toggleErrorAlert();
+        // toggleErrorAlert();
       });
-      // let json = await response.json();
-      // let base64Code = json["base64"];
-      // let imageName = json['name']
-      // const filenameImage = FileSystem.documentDirectory + imageName;
-      // await FileSystem.writeAsStringAsync(filenameImage, base64Code, {
-      //   encoding: FileSystem.EncodingType.Base64,
-      // });
-      // console.log("FilenameImage:", filenameImage)
-      // const mediaResult = await MediaLibrary.createAssetAsync(filenameImage);
-      // // Delete from cache
-      // await FileSystem.deleteAsync(localUri);
-      // // console.log(mediaResult);
-      // console.log("Saved", filenameImage);
     }
   };
+
+  const getMainButtonColor = () => {
+    let color;
+    if (mainButtonStatus === 0) {
+        color = 'red';
+    } else if (mainButtonStatus === 1) {
+        color = 'orange';
+    } else if (mainButtonStatus === 2) {
+        color = 'yellow';
+    } else if (mainButtonStatus === 3) {
+        color = 'green';
+    }else{
+      color = 'grey';
+    }
+    return color;
+};
   
   if (hasPermission === null) {
     return <View />;
@@ -153,14 +217,16 @@ export default function CameraScreen() {
 
   return (
     <View style={styles.container}>
-      <Camera style={styles.camera} type={type} ref={ref => { setCameraRef(ref) }} autoFocus={Camera.Constants.AutoFocus.on}  flashMode={Camera.Constants.FlashMode.auto}>
+      <Camera style={styles.camera} type={type} ref={ref => { setCameraRef(ref) }} autoFocus={Camera.Constants.AutoFocus.on} flashMode={Camera.Constants.FlashMode.off}>
         <View style={styles.buttonContainer}>
           <TouchableOpacity
-            style={styles.button}
-            onPress={
-              takePicture
-            }>
-            <Text style={styles.text}> GPS Status {gpsStatus} </Text>
+            disabled={activityRunning === true ? true : false}
+            style={[styles.button, { backgroundColor: getMainButtonColor() }]}
+            onPress={handleMainButton}
+            >
+            {activityRunning === true && <ActivityIndicator size="large" animating={true} color="white" />}
+            <Text style={styles.text}> GPS Status: {mainButtonStatus} </Text>
+            <Text style={[styles.text, {fontSize: 14}]}> {additionalText} </Text>
           </TouchableOpacity>
         </View>
       </Camera>
@@ -201,6 +267,30 @@ export default function CameraScreen() {
           <Text style={styles.btnText}>OK</Text>
         </TouchableOpacity>
       </FancyAlert>
+
+      <FancyAlert
+        visible={alertConfirmVisible}
+        // onRequestClose={() => { toggleErrorAlert() }}
+        icon={<View style={{
+          flex: 1,
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          backgroundColor: 'red',
+          borderRadius: 50,
+          width: '100%',
+        }}><Text>✖</Text></View>}
+        style={{ backgroundColor: 'white' }}>
+        <Text style={{ marginTop: -16, marginBottom: 10 }}>Do you want to take photo?</Text>
+        <View style={styles.buttonContainer2}>
+          <TouchableOpacity style={styles.btnError} onPress={handleAlertConfirmCancel}>
+            <Text style={styles.btnText}>Cancel</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.btnSucces} onPress={handleAlertConfirmOK}>
+            <Text style={styles.btnText}>OK</Text>
+          </TouchableOpacity>
+        </View>
+      </FancyAlert>
     </View>
   );
 }
@@ -226,18 +316,23 @@ const styles = StyleSheet.create({
     backgroundColor: 'transparent',
     flexDirection: 'row',
     margin: 10,
+    opacity:0.6,
+  },
+  buttonContainer2: {
+    flexDirection: 'row',
+    margin: 10,
   },
   button: {
     flex: 1,
     alignSelf: 'flex-end',
     alignItems: 'center',
-    backgroundColor: 'rgba(128,128,128,0.5)',
+    // backgroundColor: 'green',
     height: "20%", // Pressable area
-    justifyContent:'center'
+    justifyContent:'center',
   },
   text: {
-    fontSize: 14,
-    color: 'white',
+    fontSize: 18,
+    color: 'black',
   },
   btnError: {
     borderRadius: 32,

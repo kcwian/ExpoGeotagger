@@ -69,18 +69,18 @@ function BottomTabNavigator() {
         name="Camera"
         component={CameraScreen}
         options={{
-          title: 'Camera',
+          title: 'Camera I',
           unmountOnBlur: true,
-          tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
+          tabBarIcon: ({ color }) => <TabBarIcon name="camera" color={color} />,
         }}
       />
       <BottomTab.Screen
         name="Camera3"
         component={CameraScreen3}
         options={{
-          title: 'Camera 2',
+          title: 'Camera II',
           unmountOnBlur: true,
-          tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
+          tabBarIcon: ({ color }) => <TabBarIcon name="camera" color={color} />,
         }}
       />
       <BottomTab.Screen
@@ -89,7 +89,7 @@ function BottomTabNavigator() {
         options={({ navigation }: RootTabScreenProps<'Map'>) => ({
           title: 'Map',
           unmountOnBlur: true,
-          tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
+          tabBarIcon: ({ color }) => <TabBarIcon name="map" color={color} />,
           headerRight: () => (
             <Pressable
               onPress={() => navigation.navigate('Modal')}
