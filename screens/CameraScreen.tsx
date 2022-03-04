@@ -163,7 +163,7 @@ export default function CameraScreen() {
           FileSystem.writeAsStringAsync(filePhotoUri, base64Code, {
             encoding: FileSystem.EncodingType.Base64,
           }).then(() => {
-            FileSystem.getInfoAsync(filePhotoUri);
+            // FileSystem.getInfoAsync(filePhotoUri);
             console.log("Saved to SD Card")
             MediaLibrary.createAssetAsync(filePhotoUri).then((asset) => {
               MediaLibrary.getAlbumAsync('Geotagger').then((album) => {

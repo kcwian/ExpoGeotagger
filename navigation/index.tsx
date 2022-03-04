@@ -13,6 +13,7 @@ import { ColorSchemeName, Pressable } from 'react-native';
 import Colors from '../constants/Colors';
 import useColorScheme from '../hooks/useColorScheme';
 import ModalScreen from '../screens/ModalScreen';
+import ModalCamera3Screen from '../screens/ModalCamera3Screen';
 import NotFoundScreen from '../screens/NotFoundScreen';
 import MapScreen from '../screens/MapScreen';
 import CameraScreen3 from '../screens/CameraScreen3';
@@ -45,6 +46,7 @@ function RootNavigator() {
       <Stack.Screen name="NotFound" component={NotFoundScreen}  options={{ title: 'Oops!' }} />
       <Stack.Group screenOptions={{ presentation: 'modal' }}>
         <Stack.Screen name="Modal" component={ModalScreen} />
+        <Stack.Screen name="Camera II" component={ModalCamera3Screen} />
       </Stack.Group>
     </Stack.Navigator>
   );
@@ -77,11 +79,25 @@ function BottomTabNavigator() {
       <BottomTab.Screen
         name="Camera3"
         component={CameraScreen3}
-        options={{
+        options={({ navigation }: RootTabScreenProps<'Camera3'>) => ({
           title: 'Camera II',
           unmountOnBlur: true,
           tabBarIcon: ({ color }) => <TabBarIcon name="camera" color={color} />,
-        }}
+          headerRight: () => (
+            <Pressable
+              onPress={() => navigation.navigate('Camera II')}
+              style={({ pressed }) => ({
+                opacity: pressed ? 0.5 : 1,
+              })}>
+              <FontAwesome
+                name="info-circle"
+                size={25}
+                color={Colors[colorScheme].text}
+                style={{ marginRight: 15 }}
+              />
+            </Pressable>
+          ),
+        })}
       />
       <BottomTab.Screen
         name="Map"
