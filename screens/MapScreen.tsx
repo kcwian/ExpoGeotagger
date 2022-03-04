@@ -10,6 +10,7 @@ import * as Location from 'expo-location';
 import Constants from "expo-constants";
 import { getDistance, getPreciseDistance } from 'geolib';
 import * as ImagePicker from 'expo-image-picker';
+import {Svg, Image as ImageSvg} from 'react-native-svg';
 
 
 export default function MapScreen({ navigation }: RootTabScreenProps<'Map'>) {
@@ -52,7 +53,7 @@ export default function MapScreen({ navigation }: RootTabScreenProps<'Map'>) {
                 setMarkers(oldMarkers => [...oldMarkers, newMarker]);
             });
           }
-          console.log("Read all photos");
+          console.log("Reading all photos");
         })
       }
     });
@@ -101,7 +102,7 @@ export default function MapScreen({ navigation }: RootTabScreenProps<'Map'>) {
   let calculateDistance = (marker, index) => {
     if (lastGPSMsg == null || activeMarker == null || activeMarker != index)
       return;
-      console.log(activeMarker);
+      // console.log(activeMarker);
       let dist = getDistance(
         {latitude: lastGPSMsg.latitude, longitude : lastGPSMsg.longitude},
         {latitude: marker.latitude, longitude : marker.longitude},
@@ -110,11 +111,15 @@ export default function MapScreen({ navigation }: RootTabScreenProps<'Map'>) {
 
     return (
       <View style={{ alignContent: 'center', alignSelf: "center" }}>
-        <Text> <Image style={{ height: 100, width:100 }} source={{uri:marker.uri}} resizeMode="cover" /> </Text>
-        {/* <Image style={styles.tinyLogo}  source={{
-          uri: marker.uri
-        }} /> */}
-        <Text style={{ alignSelf: 'center' }}> Distance: {dist.toFixed(2)} m </Text>
+          <Svg width={200} height={200}>
+                 <ImageSvg
+                     width={'100%'} 
+                     height={'100%'}
+                     preserveAspectRatio="xMidYMid slice"
+                     href={{ uri: marker.uri}}
+                 />
+             </Svg>
+        <Text style={{alignContent: 'center', alignSelf: 'center', }}> Distance: {dist.toFixed(2)} m </Text>
       </View>
     )
   }
@@ -130,14 +135,14 @@ export default function MapScreen({ navigation }: RootTabScreenProps<'Map'>) {
   }
 
   let markerCalloutPress = (marker, index) => {
-    setActiveMarker(null);
-    itemsRef[activeMarker].hideCallout();
+    // setActiveMarker(null);
+    // itemsRef[activeMarker].hideCallout();
   }
 
   let updateActive = (index) =>  {
     if (activeMarker == null || activeMarker != index)
       return;
-      console.log(activeMarker);
+      // console.log(activeMarker);
     if (Platform.OS == 'android') {
       if (itemsRef[activeMarker]) {
         // itemsRef[activeMarker].hideCallout();
@@ -166,14 +171,11 @@ export default function MapScreen({ navigation }: RootTabScreenProps<'Map'>) {
           coordinate={lastGPSMsg != null ? { latitude: lastGPSMsg["latitude"], longitude: lastGPSMsg["longitude"] } : { latitude: 0.0, longitude: 0.0 }}
           pinColor='blue'
           ref={ref => { setMyMarker(ref) }}
-          title={"Title"}
-          description={"asa"}
+          title={"Your position"}
+          // description={""}
           // image={{ uri: 'https://reactnative.dev/img/tiny_logo.png' }}
         >
 
-          <Callout style={{width:250}}>
-            <Text>dssdssd {distance} </Text>
-          </Callout>
         </Marker>
 
         <Marker coordinate={{ latitude: 52.41, longitude: 16.93 }}>
@@ -187,7 +189,7 @@ export default function MapScreen({ navigation }: RootTabScreenProps<'Map'>) {
           <Marker
             key={index}
             onSelect={() => setActiveMarker(index)}
-            onPress={() => {console.log("Press") ;setActiveMarker(index)}}
+            onPress={() => {setActiveMarker(index)}}
             onCalloutPress={() => markerCalloutPress(marker,index)}
             coordinate={ {latitude: marker.latitude, longitude: marker.longitude}}
             pinColor='red'

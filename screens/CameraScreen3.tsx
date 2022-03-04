@@ -180,7 +180,7 @@ export default function CameraScreen3() {
           FileSystem.writeAsStringAsync(filePhotoUri, base64Code, {
             encoding: FileSystem.EncodingType.Base64,
           }).then(() => {
-            FileSystem.getInfoAsync(filePhotoUri);
+            // FileSystem.getInfoAsync(filePhotoUri);
             console.log("Saved to SD Card")
             MediaLibrary.createAssetAsync(filePhotoUri).then((asset) => {
               MediaLibrary.getAlbumAsync('Geotagger').then((album) => {
@@ -191,7 +191,7 @@ export default function CameraScreen3() {
                 }
               }).then(() => {
                 FileSystem.deleteAsync(localPhotoUri);
-                FileSystem.deleteAsync(filePhotoUri);
+                FileSystem.deleteAsync(filePhotoUri); // Working but somewhere else is caching
                 // toggleSuccesAlert();
                 console.log("Deleted cache");
               });
@@ -218,7 +218,7 @@ export default function CameraScreen3() {
           <Text style={[styles.instructions, {fontWeight: 'bold', marginBottom: 0 }]}>
             {lastGPSMsg["latitude"].toFixed(8)}      {lastGPSMsg["longitude"].toFixed(8)}
           </Text>
-          <Text style={[styles.instructions, {textAlign: "center", fontSize:14, marginBottom: 200 }]}>
+          <Text style={[styles.instructions, {textAlign: "center", fontSize:14, marginBottom: 120 }]}>
             latitude                     longitude
           </Text>
         </View>
@@ -229,10 +229,9 @@ export default function CameraScreen3() {
 
   return (
     <View style={styles.container}>
-
-      {/* To take a photo press the button below! */}
       {getNiceLat()}
       {activityRunning === true && <ActivityIndicator size="large" animating={true} color="black" />}
+      <Text> </Text>
       <TouchableOpacity onPress={handleMainButton} style={styles.button}
         disabled={activityRunning === true ? true : false}
         style={[styles.button, { backgroundColor: getMainButtonColor() }]}
@@ -292,7 +291,7 @@ const styles = StyleSheet.create({
   button: {
     backgroundColor: 'blue',
     padding: 20,
-    paddingHorizontal: 80,
+    // paddingHorizontal: 80,
     borderRadius: 5,
     alignItems: 'center',    
     // flex: 1,
