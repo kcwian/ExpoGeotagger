@@ -21,7 +21,7 @@ export default function CameraScreen3() {
   const serverUri = `http://${manifest.debuggerHost.split(':').shift()}:5000`;
   const msgNoConnection = "No connection to server";
   const msgPressPhoto = "Press to take photo";
-  const msgGPSDataNotChanging = "Error: GPS data is not changing";
+  const msgGPSWaiting = "Waiting for GPS signal";
   const msgCapturingImage = "Taking Photo";
   const msgGettingGPS = "Getting GPS data";
   const msgSendingImage = "Sending Image";
@@ -48,20 +48,24 @@ export default function CameraScreen3() {
         .then((response) => response.json())
         .then((responseJson) => {
           if (isMounted) {
-            if (lastGPSMsg != null && responseJson["seq"] === lastGPSMsg["seq"]){
+            if (lastGPSMsg == null || responseJson["seq"] === lastGPSMsg["seq"]){
               setGPSStatus(null);
-              setAdditionalText(msgGPSDataNotChanging);
+              setLastGPSMsg(responseJson);
+              setAdditionalText(msgNoConnection);
             }
             else {
               setLastGPSMsg(responseJson);
               setGPSStatus(responseJson["status"]); // GPS status
-              if (additionalText === msgGPSDataNotChanging || additionalText === msgNoConnection || additionalText == null)
+              if (responseJson["status"] == -1)
+                setAdditionalText(msgGPSWaiting);
+              else if (additionalText === null || additionalText === msgNoConnection || additionalText === msgGPSWaiting)
                 setAdditionalText(msgPressPhoto);
             }
           }
         })
         .catch((error) => {
           if (isMounted) {
+            console.log(error);
             setGPSStatus(null);
             setAdditionalText(msgNoConnection);
           }
@@ -108,7 +112,6 @@ export default function CameraScreen3() {
       takePicture();
     }
     else if (GPSStatus == null) {
-
     }
     else {
       toggleConfirmAlert();

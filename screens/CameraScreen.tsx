@@ -20,7 +20,7 @@ export default function CameraScreen() {
   const [errorVisible, setErrorVisible] = React.useState(false);
   const [succesVisible, setSuccesVisible] = React.useState(false);
   const [alertConfirmVisible, setAlertConfirmVisible] = useState(false);
-  const [mainButtonStatus, setMainButtonStatus] = useState(null);
+  const [GPSStatus, setGPSStatus] = useState(null);
   const [lastGPSMsg, setLastGPSMsg] = useState(null);
   const [additionalText, setAdditionalText] = useState(null);
   const [activityRunning, setActivityRunning] = useState(false);
@@ -29,7 +29,7 @@ export default function CameraScreen() {
   const serverUri = `http://${manifest.debuggerHost.split(':').shift()}:5000`;
   const msgNoConnection = "No connection to server";
   const msgPressPhoto = "Press to take photo";
-  const msgGPSDataNotChanging = "Error: GPS data is not changing";
+  const msgGPSWaiting = "Waiting for GPS signal";
   const msgCapturingImage = "Taking Photo";
   const msgGettingGPS = "Getting GPS data";
   const msgSendingImage = "Sending Image";
@@ -62,21 +62,25 @@ export default function CameraScreen() {
         .then((response) => response.json())
         .then((responseJson) => {
           if (isMounted) {
-            if (lastGPSMsg != null && responseJson["seq"] === lastGPSMsg["seq"]){
-              setMainButtonStatus(null);
-              setAdditionalText(msgGPSDataNotChanging);
+            if (lastGPSMsg == null || responseJson["seq"] === lastGPSMsg["seq"]){
+              setGPSStatus(null);
+              setLastGPSMsg(responseJson);
+              setAdditionalText(msgNoConnection);
             }
             else {
               setLastGPSMsg(responseJson);
-              setMainButtonStatus(responseJson["status"]); // GPS status
-              if (additionalText === msgGPSDataNotChanging || additionalText === msgNoConnection || additionalText == null)
-                setAdditionalText(msgPressPhoto);
+              setGPSStatus(responseJson["status"]); // GPS status
+              if (responseJson["status"] == -1)
+                setAdditionalText(msgGPSWaiting);
+              else if (additionalText === null || additionalText === msgNoConnection || additionalText === msgGPSWaiting)
+                setAdditionalText(msgPressPhoto);  
             }
           }
         })
         .catch((error) => {
           if (isMounted) {
-            setMainButtonStatus(null);
+            console.log(error);
+            setGPSStatus(null);
             setAdditionalText(msgNoConnection);
           }
         });
@@ -97,11 +101,10 @@ export default function CameraScreen() {
   };
 
   let handleMainButton = async () => {
-    if (mainButtonStatus == 3){
+    if (GPSStatus == 3){
       takePicture();
     }
-    else if (mainButtonStatus == null){
-      
+    else if (GPSStatus == null){
     }
     else{
       toggleConfirmAlert();
@@ -194,13 +197,13 @@ export default function CameraScreen() {
 
   const getMainButtonColor = () => {
     let color;
-    if (mainButtonStatus === 0) {
+    if (GPSStatus === 0) {
         color = 'red';
-    } else if (mainButtonStatus === 1) {
+    } else if (GPSStatus === 1) {
         color = 'orange';
-    } else if (mainButtonStatus === 2) {
+    } else if (GPSStatus === 2) {
         color = 'yellow';
-    } else if (mainButtonStatus === 3) {
+    } else if (GPSStatus === 3) {
         color = 'green';
     }else{
       color = 'grey';
@@ -225,7 +228,7 @@ export default function CameraScreen() {
             onPress={handleMainButton}
             >
             {activityRunning === true && <ActivityIndicator size="large" animating={true} color="white" />}
-            <Text style={styles.text}> GPS Status: {mainButtonStatus} </Text>
+            <Text style={styles.text}> GPS Status: {GPSStatus} </Text>
             <Text style={[styles.text, {fontSize: 14}]}> {additionalText} </Text>
           </TouchableOpacity>
         </View>
