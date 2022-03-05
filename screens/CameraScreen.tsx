@@ -127,7 +127,7 @@ export default function CameraScreen() {
     setAdditionalText(msgSendingImage);
     if (cameraRef && actualMsgForGeotag) {
       let photo = await cameraRef.takePictureAsync({
-        exif: true,
+        // exif: true,
         autoFocus: Camera.Constants.AutoFocus.on,
         quality: 1,
       }).catch(console.error);
@@ -217,7 +217,7 @@ export default function CameraScreen() {
 
   return (
     <View style={styles.container}>
-      <Camera style={styles.camera} type={type} ref={ref => { setCameraRef(ref) }} autoFocus={Camera.Constants.AutoFocus.on} flashMode={Camera.Constants.FlashMode.off}>
+      <Camera style={styles.camera} type={type} ref={ref => { setCameraRef(ref) }} autoFocus={Camera.Constants.AutoFocus.on} flashMode={Camera.Constants.FlashMode.auto}>
         <View style={styles.buttonContainer}>
           <TouchableOpacity
             disabled={activityRunning === true ? true : false}
