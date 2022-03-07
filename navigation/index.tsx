@@ -44,7 +44,7 @@ function RootNavigator() {
       <Stack.Screen name="Camera" component={CameraScreen}/>
       <Stack.Screen name="Camera3" component={CameraScreen3}/>
       <Stack.Screen name="NotFound" component={NotFoundScreen}  options={{ title: 'Oops!' }} />
-      <Stack.Group screenOptions={{ presentation: 'modal' }}>
+      <Stack.Group screenOptions={{ presentation: 'card' }}>
         <Stack.Screen name="Modal" component={ModalScreen} />
         <Stack.Screen name="Camera II" component={ModalCamera3Screen} />
       </Stack.Group>
