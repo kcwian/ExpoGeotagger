@@ -117,7 +117,7 @@ function BottomTabNavigator() {
       />
       <BottomTab.Screen
         name="Map"
-        component={NotFoundScreen}
+        component={MapScreen}
         options={({ navigation }: RootTabScreenProps<'Map'>) => ({
           title: 'Map',
           unmountOnBlur: true,
