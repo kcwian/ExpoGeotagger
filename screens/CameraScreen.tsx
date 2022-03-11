@@ -11,6 +11,7 @@ import { FancyAlert } from 'react-native-expo-fancy-alerts';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
 import { LoadingIndicator } from 'react-native-expo-fancy-alerts';
 import { selectIsLoading } from 'selectors';
+import * as SecureStore from 'expo-secure-store';
 
 
 export default function CameraScreen() {
@@ -24,6 +25,7 @@ export default function CameraScreen() {
   const [lastGPSMsg, setLastGPSMsg] = useState(null);
   const [additionalText, setAdditionalText] = useState(null);
   const [activityRunning, setActivityRunning] = useState(false);
+  const [altitudeOffset, setAltitudeOffset] = useState("0");
 
   const { manifest } = Constants;
   const serverUri = `http://${manifest.debuggerHost.split(':').shift()}:5000`;
@@ -33,6 +35,7 @@ export default function CameraScreen() {
   const msgCapturingImage = "Taking Photo";
   const msgGettingGPS = "Getting GPS data";
   const msgSendingImage = "Sending Image";
+  const keyAltitudeOffset = "altitudeOffset";
 
   const toggleErrorAlert = React.useCallback(() => {
     setErrorVisible(!errorVisible);
@@ -50,6 +53,19 @@ export default function CameraScreen() {
       const resMedia = await MediaLibrary.requestPermissionsAsync(false);
       setHasPermission(resMedia.granted && resCamera.granted);
     })();
+  }, []);
+
+  React.useEffect(() => {
+    let isMounted = true;
+    SecureStore.getItemAsync(keyAltitudeOffset).then((result) => {
+      setAltitudeOffset(result);
+    }).catch((error) => {
+      console.log(error);
+      setAltitudeOffset("0");
+    });
+    return () => {
+      isMounted = false;
+    }
   }, []);
 
   useEffect(() => {
@@ -147,6 +163,7 @@ export default function CameraScreen() {
       formData.append('image', { uri: localPhotoUri, name: filename, type });
       formData.append('platform', Platform.OS);
       formData.append('GPS', JSON.stringify(actualMsgForGeotag));
+      formData.append('altitudeOffset', altitudeOffset);
       console.log("Sending Image");
       fetch(serverUri + '/image', {
         method: 'POST',

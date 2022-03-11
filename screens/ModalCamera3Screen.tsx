@@ -14,6 +14,7 @@ export default function ModalCamera3Screen() {
         <Text style={styles.text}>1. Aplikacja zapisuje pozycję GPS od razu po wciśnięciu przycisku.</Text>
         <Text style={styles.text}>2. Zakładki Camera I oraz Camera II można używać zamiennie, trzeba tylko sprawdzić czy zdjęcia są wykonywane w pełnej rozdzielczości.</Text>
         <Text style={styles.text}>3. Na urządzeniach z Android'em zdjęcia wykonane Camera II są dodatkowo zapisywane w pamięci cache urządzenia, więc sporadycznie trzeba go wyczyścić (Ustawienia -> Aplikacje -> Expo Go -> Pamięć -> Wyczyść pamięć (podręczną).</Text>
+        <Text style={styles.text}>4. Kontakt w razie pytań lub problemów z aplikacją: krzysztof.cwian@gmail.com</Text>
         {/* Use a light status bar on iOS to account for the black space above the modal */}
       </View>
       {/* <StatusBar style={Platform.OS === 'ios' ? 'light' : 'auto'} /> */}

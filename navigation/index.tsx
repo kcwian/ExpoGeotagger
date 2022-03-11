@@ -8,12 +8,13 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { NavigationContainer, DefaultTheme, DarkTheme } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import * as React from 'react';
-import { ColorSchemeName, Pressable } from 'react-native';
+import { ColorSchemeName, Pressable,View } from 'react-native';
 
 import Colors from '../constants/Colors';
 import useColorScheme from '../hooks/useColorScheme';
 import ModalScreen from '../screens/ModalScreen';
 import ModalCamera3Screen from '../screens/ModalCamera3Screen';
+import SettingsScreen from '../screens/Settings';
 import NotFoundScreen from '../screens/NotFoundScreen';
 import MapScreen from '../screens/MapScreen';
 import CameraScreen3 from '../screens/CameraScreen3';
@@ -47,6 +48,7 @@ function RootNavigator() {
       <Stack.Group screenOptions={{ presentation: 'card' }}>
         <Stack.Screen name="Modal" component={ModalScreen} />
         <Stack.Screen name="Camera II" component={ModalCamera3Screen} />
+        <Stack.Screen name="Settings" component={SettingsScreen} />
       </Stack.Group>
     </Stack.Navigator>
   );
@@ -84,6 +86,7 @@ function BottomTabNavigator() {
           unmountOnBlur: true,
           tabBarIcon: ({ color }) => <TabBarIcon name="camera" color={color} />,
           headerRight: () => (
+            <View style={{flexDirection: 'row'}}>
             <Pressable
               onPress={() => navigation.navigate('Camera II')}
               style={({ pressed }) => ({
@@ -93,9 +96,22 @@ function BottomTabNavigator() {
                 name="info-circle"
                 size={25}
                 color={Colors[colorScheme].text}
-                style={{ marginRight: 15 }}
+                style={{ marginRight: 25 }}
               />
             </Pressable>
+             <Pressable
+             onPress={() => navigation.navigate('Settings')}
+             style={({ pressed }) => ({
+               opacity: pressed ? 0.5 : 1,
+             })}>
+             <FontAwesome
+               name="gear"
+               size={25}
+               color={Colors[colorScheme].text}
+               style={{ marginRight: 15 }}
+             />
+           </Pressable>
+           </View>
           ),
         })}
       />

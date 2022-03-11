@@ -1,5 +1,5 @@
 import React from 'react';
-import { Image, StyleSheet, Text, TouchableOpacity, View, ActivityIndicator, Platform } from 'react-native';
+import { ImageBackground, StyleSheet, Text, TouchableOpacity, View, ActivityIndicator, Platform } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import * as MediaLibrary from 'expo-media-library';
 import * as FileSystem from 'expo-file-system';
@@ -7,6 +7,9 @@ import { StorageAccessFramework } from 'expo-file-system';
 import { useState, useEffect } from 'react';
 import Constants from "expo-constants";
 import { FancyAlert } from 'react-native-expo-fancy-alerts';
+import { LinearGradient } from 'expo-linear-gradient';
+import { Dimensions } from 'react-native';
+import * as SecureStore from 'expo-secure-store';
 
 export default function CameraScreen3() {
   const [image, setImage] = useState(null)
@@ -16,6 +19,7 @@ export default function CameraScreen3() {
   const [additionalText, setAdditionalText] = useState(null);
   const [activityRunning, setActivityRunning] = useState(false);
   const [alertConfirmVisible, setAlertConfirmVisible] = useState(false);
+  const [altitudeOffset, setAltitudeOffset] = useState("0");
 
   const { manifest } = Constants;
   const serverUri = `http://${manifest.debuggerHost.split(':').shift()}:5000`;
@@ -25,6 +29,7 @@ export default function CameraScreen3() {
   const msgCapturingImage = "Taking Photo";
   const msgGettingGPS = "Getting GPS data";
   const msgSendingImage = "Sending Image";
+  const keyAltitudeOffset = "altitudeOffset";
 
   useEffect(() => {
     (async () => {
@@ -42,6 +47,12 @@ export default function CameraScreen3() {
     let isMounted = true;
     const interval = setInterval(() => {
       //GET request
+      SecureStore.getItemAsync(keyAltitudeOffset).then((result) => {
+        setAltitudeOffset(result);
+      }).catch((error) => {
+        console.log(error);
+        setAltitudeOffset("0");
+      });
       fetch(serverUri + '/lastMessage', {
         method: 'GET',
       })
@@ -164,6 +175,7 @@ export default function CameraScreen3() {
       formData.append('image', { uri: localPhotoUri, name: filename, type });
       formData.append('platform', Platform.OS);
       formData.append('GPS', JSON.stringify(actualMsgForGeotag));
+      formData.append('altitudeOffset', altitudeOffset);
       console.log("Sending Image");
       fetch(serverUri + '/image', {
         method: 'POST',
@@ -221,17 +233,28 @@ export default function CameraScreen3() {
           <Text style={[styles.instructions, {fontWeight: 'bold', marginBottom: 0 }]}>
             {lastGPSMsg["latitude"].toFixed(8)}      {lastGPSMsg["longitude"].toFixed(8)}
           </Text>
-          <Text style={[styles.instructions, {textAlign: "center", fontSize:14, marginBottom: 120 }]}>
+          <Text style={[styles.instructions, { textAlign: "center", fontSize: 14, marginBottom: 20 }]}>
             latitude                     longitude
+          </Text>
+          <Text style={[styles.instructions, { textAlign: "center", fontWeight: 'bold', marginBottom: 0 }]}>
+               {(lastGPSMsg["altitude"]-altitudeOffset).toFixed(2)} + <Text style={{fontWeight:"normal"}}>{altitudeOffset.toString()}m</Text>
+          </Text>
+          <Text style={[styles.instructions, { textAlign: "center", fontSize: 14, marginBottom: 80 }]}>
+                altitude
           </Text>
         </View>
       )
     }
   }
 
-
   return (
     <View style={styles.container}>
+      <LinearGradient
+        colors={['rgba(255, 128, 0,0.5)', 'rgba(255,255,255,1.0)']}
+        start={{ x: 0.5, y: 0 }}
+        end={{ x: 0.5, y: 0.85 }}
+        style={styles.background}
+      />
       {getNiceLat()}
       {activityRunning === true && <ActivityIndicator size="large" animating={true} color="black" />}
       <Text> </Text>
@@ -275,7 +298,7 @@ export default function CameraScreen3() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: 'white',
     alignItems: 'center',
     justifyContent: 'center',
     padding:20,
@@ -286,7 +309,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   instructions: {
-    color: '#888',
+    color: '#000',
     fontSize: 18,
     marginHorizontal: 15,
     marginBottom: 10,
@@ -296,7 +319,7 @@ const styles = StyleSheet.create({
     padding: 20,
     // paddingHorizontal: 80,
     borderRadius: 5,
-    alignItems: 'center',    
+    alignItems: 'center',
     // flex: 1,
     // alignSelf: 'flex-end',
   },
@@ -341,5 +364,12 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     minWidth: '50%',
     padding: 10,
+  },
+  background: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: 0,
+    height: Dimensions.get('window').height,
   },
 });
