@@ -11,7 +11,7 @@ import Constants from "expo-constants";
 import { getDistance, getPreciseDistance } from 'geolib';
 import * as ImagePicker from 'expo-image-picker';
 import {Svg, Image as ImageSvg} from 'react-native-svg';
-
+import * as SecureStore from 'expo-secure-store';
 
 export default function MapScreen({ navigation }: RootTabScreenProps<'Map'>) {
 
@@ -20,11 +20,14 @@ export default function MapScreen({ navigation }: RootTabScreenProps<'Map'>) {
   const [distance, setDistance] = useState(null)
   const [lastGPSMsg, setLastGPSMsg] = useState(null);
   const [activeMarker, setActiveMarker] = useState(null);
+  const [mapInitalized, setMapInitalized] = useState(false);
+  const [mapType, setMapType] = useState("standard");
   const itemsRef = useRef([]);
+  const mapRef = useRef();
   const activeMarker2 = useRef();
   const { manifest } = Constants;
   const serverUri = `http://${manifest.debuggerHost.split(':').shift()}:5000`;
-  // activeMarker2.current = activeMarker;
+  const keyMapType = "mapType";
 
   useEffect(() => {
     (async () => {
@@ -43,15 +46,18 @@ export default function MapScreen({ navigation }: RootTabScreenProps<'Map'>) {
     MediaLibrary.getAlbumAsync('Geotagger').then((album) => {
       console.log(album);
       if (album != null) {
-        MediaLibrary.getAssetsAsync({ album: album.id }).then(res => {
+        MediaLibrary.getAssetsAsync({ album: album.id, first:200 }).then(res => {
           for (let asset of res.assets) {
             MediaLibrary.getAssetInfoAsync(asset).then((assetInfo) => {
               let newMarker = assetInfo.location;
-              newMarker['uri'] = assetInfo.localUri;
-              console.log(assetInfo.localUri);
-              if (isMounted)
-                setMarkers(oldMarkers => [...oldMarkers, newMarker]);
+              if (newMarker != null) {
+                newMarker['uri'] = assetInfo.localUri;
+                // console.log(assetInfo.localUri);
+                if (isMounted)
+                  setMarkers(oldMarkers => [...oldMarkers, newMarker]);
+              }
             });
+            
           }
           console.log("Reading all photos");
         })
@@ -74,15 +80,15 @@ export default function MapScreen({ navigation }: RootTabScreenProps<'Map'>) {
         .then((responseJson) => {
           if (isMounted) {
             setLastGPSMsg(responseJson);
-           // calculateDistance();
-            // setDistance(distance => distance+1);
-            if (myMarker != null){
-              // myMarker.redraw();
-            //  myMarker.redrawCallout();
-            //  activeMarker.hideCallout();
-            //  myMarker.showCallout();
+            if (mapInitalized == false) {
+              setMapInitalized(true);
+              mapRef.current.animateToRegion({
+                latitude: responseJson["latitude"],
+                longitude: responseJson["longitude"],
+                latitudeDelta: 0.00922,
+                longitudeDelta: 0.00922,
+              });
             }
-            // console.log(distance);
           }
         })
         .catch((error) => {
@@ -93,11 +99,23 @@ export default function MapScreen({ navigation }: RootTabScreenProps<'Map'>) {
       clearInterval(interval);
       isMounted = false;
     }
-  }, [lastGPSMsg]);
+  }, [lastGPSMsg,mapInitalized]);
 
-  let increment = () => {
-    // setDistance(distance +1);
-  }
+  useEffect(() => {
+    let isMounted = true;
+    SecureStore.getItemAsync(keyMapType).then((result) => {
+      if (result != null)
+        setMapType(result);
+      else
+      setMapType("standard");
+    }).catch((error) => {
+      console.log(error);
+      setMapType("standard");
+    });
+    return () => {
+      isMounted = false;
+    }
+  }, []);
 
   let calculateDistance = (marker, index) => {
     if (lastGPSMsg == null || activeMarker == null || activeMarker != index)
@@ -126,7 +144,6 @@ export default function MapScreen({ navigation }: RootTabScreenProps<'Map'>) {
 
   let mapCalloutPress = () => {
     if (Platform.OS == "android") {
-      console.log("Map Press")
       if (activeMarker != null) {
         itemsRef[activeMarker].hideCallout();
         setActiveMarker(null);
@@ -157,7 +174,9 @@ export default function MapScreen({ navigation }: RootTabScreenProps<'Map'>) {
       <View style={styles.separator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
 
       <MapView style={styles.map}
+          ref={ref => {mapRef.current = ref}}
           onPress={mapCalloutPress}
+          mapType={mapType}
         initialRegion={{
           latitude: 52.41,
           longitude: 16.93,
@@ -172,57 +191,32 @@ export default function MapScreen({ navigation }: RootTabScreenProps<'Map'>) {
           pinColor='blue'
           ref={ref => { setMyMarker(ref) }}
           title={"Your position"}
-          // description={""}
-          // image={{ uri: 'https://reactnative.dev/img/tiny_logo.png' }}
         >
-
         </Marker>
 
-        <Marker coordinate={{ latitude: 52.41, longitude: 16.93 }}>
-          <Callout onPress={() => console.log("This is logged")} style={{ width: 250 }}>
-            <View><Text>{distance}</Text></View>
-          </Callout>
-        </Marker>
+        {markers.map((marker, index) => (
+            <Marker
+              key={index}
+              onSelect={() => setActiveMarker(index)}
+              onPress={() => { setActiveMarker(index) }}
+              onCalloutPress={() => markerCalloutPress(marker, index)}
+              coordinate={{ latitude: marker.latitude, longitude: marker.longitude }}
+              pinColor='red'
+              ref={ref => { itemsRef[index] = ref }}
+              tracksInfoWindowChanges={true}
+            // image={{uri: marker.uri, width:10, height:10, scale: 22}}
+            >
+              <Callout style={{ width: 220, height: 220 }}>
+                {calculateDistance(marker, index)}
+                {updateActive(index)}
 
-        {
-        markers.map((marker, index) => (
-          <Marker
-            key={index}
-            onSelect={() => setActiveMarker(index)}
-            onPress={() => {setActiveMarker(index)}}
-            onCalloutPress={() => markerCalloutPress(marker,index)}
-            coordinate={ {latitude: marker.latitude, longitude: marker.longitude}}
-            pinColor='red'
-            ref={ref => { itemsRef[index] = ref }}
-            tracksInfoWindowChanges = {true}
-          // image={{uri: marker.uri, width:10, height:10, scale: 22}}
-          >
+              </Callout>
+            </Marker>
+          ))}
 
-            <Callout style={{ width: 220, height:220}}>
-              {calculateDistance(marker, index)}
-              {updateActive(index)}
-
-            </Callout>
-          </Marker>
-        ))}
-           {/* <Overlay
-      style={{position: "absolute", bottom: 50}}
-      image={{ 
-        uri: 'file:///storage/emulated/0/Pictures/Geotagger/IMG-04-03-2022-15-01-15.jpg'}}
-    /> */}
       </MapView>
-      <Image style={styles.tinyLogo} source={{ 
-          uri: 'file:///storage/emulated/0/Pictures/Geotagger/IMG-04-03-2022-15-01-15.jpg'
-        }}/>
-
-      {/* <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-          <TouchableHighlight onPress={increment} underlayColor={'#e69500'} style={styles.button}>
-            <Text style={{ color: '#000', fontWeight: 'bold' }}>Increment</Text>
-          </TouchableHighlight>
-      </View> */}
-
     </View>
-    
+
   );
 }
 

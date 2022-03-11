@@ -58,7 +58,10 @@ export default function CameraScreen() {
   React.useEffect(() => {
     let isMounted = true;
     SecureStore.getItemAsync(keyAltitudeOffset).then((result) => {
+      if (result != null)
       setAltitudeOffset(result);
+    else
+      setAltitudeOffset("0");
     }).catch((error) => {
       console.log(error);
       setAltitudeOffset("0");

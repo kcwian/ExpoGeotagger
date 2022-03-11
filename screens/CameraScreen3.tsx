@@ -43,12 +43,31 @@ export default function CameraScreen3() {
     })();
   }, []);
 
+  React.useEffect(() => {
+    let isMounted = true;
+    SecureStore.getItemAsync(keyAltitudeOffset).then((result) => {
+      if (result != null)
+        setAltitudeOffset(result);
+      else
+        setAltitudeOffset("0");
+    }).catch((error) => {
+      console.log(error);
+      setAltitudeOffset("0");
+    });
+    return () => {
+      isMounted = false;
+    }
+  }, []);
+
   useEffect(() => {
     let isMounted = true;
     const interval = setInterval(() => {
       //GET request
       SecureStore.getItemAsync(keyAltitudeOffset).then((result) => {
+        if (result != null)
         setAltitudeOffset(result);
+      else
+        setAltitudeOffset("0");
       }).catch((error) => {
         console.log(error);
         setAltitudeOffset("0");
@@ -81,12 +100,12 @@ export default function CameraScreen3() {
             setAdditionalText(msgNoConnection);
           }
         });
-    }, 500);
+    }, 1000);
     return () => {
       clearInterval(interval);
       isMounted = false;
     }
-  }, [lastGPSMsg]);
+  }, [lastGPSMsg, altitudeOffset]);
 
   const toggleConfirmAlert = React.useCallback(() => {
     setAlertConfirmVisible(!alertConfirmVisible);
@@ -237,7 +256,7 @@ export default function CameraScreen3() {
             latitude                     longitude
           </Text>
           <Text style={[styles.instructions, { textAlign: "center", fontWeight: 'bold', marginBottom: 0 }]}>
-               {(lastGPSMsg["altitude"]-altitudeOffset).toFixed(2)} + <Text style={{fontWeight:"normal"}}>{altitudeOffset.toString()}m</Text>
+               {(lastGPSMsg["altitude"]-altitudeOffset).toFixed(2)} {altitudeOffset != "0" && <Text style={{fontWeight:"normal"}} >+ {altitudeOffset} m</Text>}
           </Text>
           <Text style={[styles.instructions, { textAlign: "center", fontSize: 14, marginBottom: 80 }]}>
                 altitude

@@ -1,31 +1,32 @@
 import { StatusBar } from 'expo-status-bar';
 import { Text, View } from '../components/Themed';
 import * as React from 'react';
-import {StyleSheet, TextInput, Button, Keyboard, TouchableOpacity } from 'react-native';
+import { StyleSheet, TextInput, Button, Keyboard, TouchableOpacity, ScrollView, KeyboardAvoidingView } from 'react-native';
 import * as SecureStore from 'expo-secure-store';
+import { Picker } from '@react-native-picker/picker'
 
 export default function SettingsScreen() {
-  const [key, onChangeKey] = React.useState('Your key here');
-  const [value, onChangeValue] = React.useState('Your value here');
   const [altitudeOffset, setAltitudeOffset] = React.useState("0");
+  const [mapType, setMapType] = React.useState("standard");
   const keyAltitudeOffset = "altitudeOffset";
+  const keyMapType = "mapType";
 
-  async function save(key, value) {
-    if(!value)
+  async function saveAltitudeOffset() {
+    let value = altitudeOffset;
+    if (value == null || value == "")
       value = "0";
-    await SecureStore.setItemAsync(key, value);
+    await SecureStore.setItemAsync(keyAltitudeOffset, value);
   }
 
-  React.useEffect(() => {
-    let isMounted = true;
-    getValueForAltitude(keyAltitudeOffset);
-    return () => {
-      isMounted = false;
-    }
-  }, []);
+  async function saveMapType() {
+    let value = mapType;
+    if (!value || value == null || value == "")
+      value = "standard";
+    await SecureStore.setItemAsync(keyMapType, value);
+  }
 
-  async function getValueForAltitude(key) {
-    let result = await SecureStore.getItemAsync(key);
+  async function getAltitudeOffset() {
+    let result = await SecureStore.getItemAsync(keyAltitudeOffset);
     if (result) {
       setAltitudeOffset(result);
     } else {
@@ -33,36 +34,75 @@ export default function SettingsScreen() {
     }
   }
 
+  async function getMapType() {
+    let result = await SecureStore.getItemAsync(keyMapType);
+    if (result != null) {
+      setMapType(result);
+    } else {
+      setMapType("standard");
+    }
+  }
+
+  React.useEffect(() => {
+    let isMounted = true;
+    getAltitudeOffset();
+    getMapType();
+    return () => {
+      isMounted = false;
+    }
+  }, []);
+
   function onChanged(text) {
     text = text.replace(',', '.');
     setAltitudeOffset(text);
   }
 
   return (
-    <View style={styles.container}>
-      {/* {Add some TextInput components... } */}
-      <View style={{ flex: 0.1, marginTop: 20, flexDirection: 'row', alignContent: 'center', alignSelf: 'center', justifyContent: 'center' }}>
-        <Text style={styles.text}> Antenna mount height</Text>
-        <TextInput
-          style={styles.textInput}
-          keyboardType='numeric'
-          onChangeText={(text) => onChanged(text)}
-          value={altitudeOffset.toString()}
-          onPressOut={() => Keyboard.dismiss()}
-        />
-        <Text style={styles.text}>m</Text>
-      </View>
-      <View style={styles.separator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
-      <TouchableOpacity
-        style={styles.button}
-        onPress={() => {
-          save(keyAltitudeOffset, altitudeOffset);
-          setAltitudeOffset(altitudeOffset);
-        }}
-      >
-        <Text>Save</Text>
-      </TouchableOpacity>
-    </View>
+    <KeyboardAvoidingView style={{ flex: 1 }}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+    >
+      <ScrollView>
+        <View style={styles.container}>
+          {/* {Add some TextInput components... } */}
+          <View style={styles.item}>
+            <Text style={styles.text}> Antenna mount height</Text>
+            <TextInput
+              style={styles.textInput}
+              keyboardType='numeric'
+              onChangeText={(text) => onChanged(text)}
+              value={altitudeOffset.toString()}
+              onPressOut={() => Keyboard.dismiss()}
+            />
+            <Text style={styles.text}>m</Text>
+          </View>
+
+          <View style={styles.separator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
+
+          <View style={styles.item}>
+            <Text style={styles.text}> Map type:</Text>
+            <Picker
+              selectedValue={mapType}
+              style={{ color: 'red', flex: 0.6, borderRadius: 0, alignContent: 'center', alignSelf: 'center', justifyContent: 'center' }}
+              onValueChange={(itemValue, itemIndex) => setMapType(itemValue)}
+            >
+              <Picker.Item label="Street" value="standard" />
+              <Picker.Item label="Satellite" value="satellite" />
+              <Picker.Item label="Hybrid" value="hybrid" />
+            </Picker>
+          </View>
+          <View style={styles.separator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
+          <TouchableOpacity
+            style={styles.button}
+            onPress={() => {
+              saveAltitudeOffset();
+              saveMapType();
+            }}
+          >
+            <Text>Save</Text>
+          </TouchableOpacity>
+        </View>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
 
@@ -78,16 +118,20 @@ const styles = StyleSheet.create({
   },
   text: {
     fontSize: 16,
-    padding:10
+    padding: 10,
+    alignContent: 'center',
+    alignSelf: 'center',
+    justifyContent: 'center'
   },
   separator: {
-    marginVertical: 30,
+    marginTop: 10,
+    marginBottom: 10,
     height: 1,
     width: '80%',
   },
   textInput: {
     height: 40,
-    // margin: 12,
+    color: 'red',
     borderWidth: 1,
     padding: 10,
   },
@@ -102,8 +146,17 @@ const styles = StyleSheet.create({
     padding: 20,
     borderRadius: 5,
     alignItems: 'center',
-    width:100,
+    width: 100,
+    marginTop: 20,
     // flex: 1,
     // alignSelf: 'flex-end',
   },
+  item: {
+    flex: 0.1,
+    marginTop: 20,
+    flexDirection: 'row',
+    alignContent: 'center',
+    alignSelf: 'center',
+    justifyContent: 'center'
+  }
 });
