@@ -218,13 +218,13 @@ export default function CameraScreen() {
   const getMainButtonColor = () => {
     let color;
     if (GPSStatus === 0) {
-        color = 'red';
-    } else if (GPSStatus === 1) {
-        color = 'orange';
-    } else if (GPSStatus === 2) {
-        color = 'yellow';
-    } else if (GPSStatus === 3) {
-        color = 'green';
+      color = 'tomato';
+  } else if (GPSStatus === 1) {
+      color = 'orange';
+  } else if (GPSStatus === 2) {
+      color = 'gold';
+  } else if (GPSStatus === 3) {
+      color = 'green';
     }else{
       color = 'grey';
     }
@@ -349,6 +349,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignSelf: 'flex-end',
     alignItems: 'center',
+    borderRadius: 20,
     // backgroundColor: 'green',
     height: "20%", // Pressable area
     justifyContent:'center',

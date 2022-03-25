@@ -114,11 +114,11 @@ export default function CameraScreen3() {
   const getMainButtonColor = () => {
     let color;
     if (GPSStatus === 0) {
-        color = 'red';
+        color = 'tomato';
     } else if (GPSStatus === 1) {
         color = 'orange';
     } else if (GPSStatus === 2) {
-        color = 'yellow';
+        color = 'gold';
     } else if (GPSStatus === 3) {
         color = 'green';
     }else{
@@ -258,7 +258,7 @@ export default function CameraScreen3() {
           <Text style={[styles.instructions, { textAlign: "center", fontWeight: 'bold', marginBottom: 0 }]}>
                {(lastGPSMsg["altitude"]-altitudeOffset).toFixed(2)} {altitudeOffset != "0" && <Text style={{fontWeight:"normal"}} >+ {altitudeOffset} m</Text>}
           </Text>
-          <Text style={[styles.instructions2, {marginBottom: 80 }]}>
+          <Text style={[styles.instructions2, {marginBottom: 0 + Dimensions.get('window').height * 0.2 }]}>
                 altitude
           </Text>
         </View>
@@ -269,7 +269,7 @@ export default function CameraScreen3() {
   return (
     <View style={styles.container}>
       <LinearGradient
-        colors={['rgba(255, 128, 0,0.5)', 'rgba(255,255,255,1.0)']}
+        colors={[getMainButtonColor(), 'rgba(255,255,255,1.0)']}
         start={{ x: 0.5, y: 0 }}
         end={{ x: 0.5, y: 0.85 }}
         style={styles.background}
@@ -344,7 +344,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'blue',
     padding: 20,
     // paddingHorizontal: 80,
-    borderRadius: 5,
+    borderRadius: 15,
     alignItems: 'center',
     // flex: 1,
     // alignSelf: 'flex-end',
