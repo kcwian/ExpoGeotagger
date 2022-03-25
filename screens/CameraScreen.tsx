@@ -249,7 +249,7 @@ export default function CameraScreen() {
             >
             {activityRunning === true && <ActivityIndicator size="large" animating={true} color="white" />}
             <Text style={styles.text}> GPS Status: {GPSStatus} </Text>
-            <Text style={[styles.text, {fontSize: 14}]}> {additionalText} </Text>
+            <Text style={[styles.text, {fontSize: Dimensions.get('window').width *0.035}]}> {additionalText} </Text>
           </TouchableOpacity>
         </View>
       </Camera>
@@ -354,7 +354,7 @@ const styles = StyleSheet.create({
     justifyContent:'center',
   },
   text: {
-    fontSize: 18,
+    fontSize: Dimensions.get('window').width *0.05,
     color: 'black',
   },
   btnError: {

@@ -82,7 +82,9 @@ export default function SettingsScreen() {
             <Text style={styles.text}> Map type:</Text>
             <Picker
               selectedValue={mapType}
-              style={{ color: 'red', flex: 0.6, borderRadius: 0, alignContent: 'center', alignSelf: 'center', justifyContent: 'center' }}
+              mode="dropdown"
+              itemStyle={{fontSize: 14}}
+              style={{ color: 'red', flex: 0.5, borderRadius: 0, alignContent: 'center', alignSelf: 'center', justifyContent: 'center' }}
               onValueChange={(itemValue, itemIndex) => setMapType(itemValue)}
             >
               <Picker.Item label="Street" value="standard" />
@@ -126,7 +128,7 @@ const styles = StyleSheet.create({
   separator: {
     marginTop: 10,
     marginBottom: 10,
-    height: 1,
+    height: 5,
     width: '80%',
   },
   textInput: {

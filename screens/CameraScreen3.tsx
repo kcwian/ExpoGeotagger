@@ -43,7 +43,7 @@ export default function CameraScreen3() {
     })();
   }, []);
 
-  React.useEffect(() => {
+  useEffect(() => {
     let isMounted = true;
     SecureStore.getItemAsync(keyAltitudeOffset).then((result) => {
       if (result != null)
@@ -252,13 +252,13 @@ export default function CameraScreen3() {
           <Text style={[styles.instructions, {fontWeight: 'bold', marginBottom: 0 }]}>
             {lastGPSMsg["latitude"].toFixed(8)}      {lastGPSMsg["longitude"].toFixed(8)}
           </Text>
-          <Text style={[styles.instructions, { textAlign: "center", fontSize: 14, marginBottom: 20 }]}>
-            latitude                     longitude
+          <Text style={styles.instructions2}>
+            latitude                               longitude
           </Text>
           <Text style={[styles.instructions, { textAlign: "center", fontWeight: 'bold', marginBottom: 0 }]}>
                {(lastGPSMsg["altitude"]-altitudeOffset).toFixed(2)} {altitudeOffset != "0" && <Text style={{fontWeight:"normal"}} >+ {altitudeOffset} m</Text>}
           </Text>
-          <Text style={[styles.instructions, { textAlign: "center", fontSize: 14, marginBottom: 80 }]}>
+          <Text style={[styles.instructions2, {marginBottom: 80 }]}>
                 altitude
           </Text>
         </View>
@@ -329,9 +329,16 @@ const styles = StyleSheet.create({
   },
   instructions: {
     color: '#000',
-    fontSize: 18,
+    fontSize: Dimensions.get('window').width *0.05,
     marginHorizontal: 15,
     marginBottom: 10,
+  },
+  instructions2: {
+    color: '#000',
+    fontSize: Dimensions.get('window').width *0.035,
+    marginHorizontal: 15,
+    marginBottom: 20,
+    textAlign: "center", 
   },
   button: {
     backgroundColor: 'blue',
@@ -343,11 +350,11 @@ const styles = StyleSheet.create({
     // alignSelf: 'flex-end',
   },
   text: {
-    fontSize: 18,
+    fontSize: Dimensions.get('window').width *0.05,
     color: 'black',
   },
   buttonText: {
-    fontSize: 14,
+    fontSize: Dimensions.get('window').width *0.035,
     color: '#000',
   },
   buttonContainer2: {
