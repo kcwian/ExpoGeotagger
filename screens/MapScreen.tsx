@@ -137,7 +137,7 @@ export default function MapScreen({ navigation }: RootTabScreenProps<'Map'>) {
                      href={{ uri: marker.uri}}
                  />
              </Svg>
-        <Text style={{alignContent: 'center', alignSelf: 'center', }}> Distance: {dist.toFixed(2)} m </Text>
+        <Text style={{alignContent: 'center', alignSelf: 'center', }}> Status: {lastGPSMsg["status"]} | Distance: {dist.toFixed(2)} m </Text>
       </View>
     )
   }
