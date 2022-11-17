@@ -13,3 +13,7 @@
 
 d /tmp 1777 root root -
 ```
+
+## Upgrade SDK
+- Update expo-cli: ```yarn global add expo-cli``` 
+- Upgrade SDK: ```expo-cli upgrade``` 
