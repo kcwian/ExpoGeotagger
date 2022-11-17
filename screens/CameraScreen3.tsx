@@ -23,6 +23,7 @@ export default function CameraScreen3() {
 
   const { manifest } = Constants;
   const serverUri = `http://${manifest.debuggerHost.split(':').shift()}:5000`;
+  // const serverUri = "exp://localhost:5000"
   const msgNoConnection = "No connection to server";
   const msgPressPhoto = "Press to take photo";
   const msgGPSWaiting = "Waiting for GPS signal";
@@ -172,7 +173,7 @@ export default function CameraScreen3() {
       exif: true,
       base64: false,
     }).then((pickerResult) => {
-      if (pickerResult.cancelled || actualMsgForGeotag == null){
+      if (pickerResult.canceled || actualMsgForGeotag == null){
         setActivityRunning(false);
         setAdditionalText(msgPressPhoto);
         if (Platform.OS == "ios")
@@ -182,7 +183,7 @@ export default function CameraScreen3() {
       if (Platform.OS == "ios")
         setAlertConfirmVisible(false);
       console.log("Photo taken");
-      let localPhotoUri = pickerResult.uri;
+      let localPhotoUri = pickerResult.assets[0].uri;
       let filename = localPhotoUri.split('/').pop();
       // Infer the type of the image
       let match = /\.(\w+)$/.exec(filename);
@@ -200,7 +201,7 @@ export default function CameraScreen3() {
         method: 'POST',
         body: formData,
         headers: {
-          'content-type': 'multipart/form-data',
+          'Content-Type': 'multipart/form-data',
         },
       }).then(response => {
         // setAdditionalText("Received image from server");
