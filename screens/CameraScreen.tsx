@@ -293,7 +293,7 @@ export default function CameraScreen() {
 
       <FancyAlert
         visible={alertConfirmVisible}
-        // onRequestClose={() => { toggleErrorAlert() }}
+        onRequestClose={() => { toggleConfirmAlert() }}
         icon={<View style={{
           flex: 1,
           display: 'flex',
@@ -304,7 +304,7 @@ export default function CameraScreen() {
           width: '100%',
         }}><Text>✖</Text></View>}
         style={{ backgroundColor: 'white' }}>
-        <Text style={{ marginTop: -16, marginBottom: 10 }}>Do you want to take photo?</Text>
+        <Text style={{ marginTop: -16, marginBottom: 10, color: 'black' }}>Do you want to take photo?</Text>
         <View style={styles.buttonContainer2}>
           <TouchableOpacity style={styles.btnError} onPress={handleAlertConfirmCancel}>
             <Text style={styles.btnText}>Cancel</Text>
@@ -343,6 +343,7 @@ const styles = StyleSheet.create({
   },
   buttonContainer2: {
     flexDirection: 'row',
+    backgroundColor: 'transparent',
     margin: 10,
   },
   button: {
