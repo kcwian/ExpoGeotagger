@@ -71,7 +71,7 @@ export default function SettingsScreen() {
               keyboardType='numeric'
               onChangeText={(text) => onChanged(text)}
               value={altitudeOffset.toString()}
-              onPressOut={() => Keyboard.dismiss()}
+              // onPressOut={() => Keyboard.dismiss()}
             />
             <Text style={styles.text}>m</Text>
           </View>

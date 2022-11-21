@@ -168,7 +168,7 @@ export default function CameraScreen3() {
     ImagePicker.launchCameraAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       // allowsEditing: true,
-      presentationStyle: 0,
+      // presentationStyle: 0,
       quality: 1,
       exif: true,
       base64: false,
