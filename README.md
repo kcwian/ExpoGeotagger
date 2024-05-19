@@ -17,3 +17,12 @@ d /tmp 1777 root root -
 ## Upgrade SDK
 - Update expo-cli: ```yarn global add expo-cli``` 
 - Upgrade SDK: ```expo-cli upgrade``` 
+
+## In case of upgrade problems:
+- Update node: ```n lts```
+- Clear yarn.lock: ```rm yarn.lock```
+- Clear .expo: ```rm .expo```
+- Upgrade: ```expo upgrade```
+
+##  Local address instead of IP
+- Add somehow ```export REACT_NATIVE_PACKAGER_HOSTNAME=192.168.0.x``` 

@@ -2,7 +2,8 @@ import { StyleSheet, Dimensions, TouchableOpacity, Platform, ActivityIndicator }
 import React, { useState, useEffect } from 'react';
 import EditScreenInfo from '../components/EditScreenInfo';
 import { Text, View } from '../components/Themed';
-import { Camera } from 'expo-camera';
+import { Camera, CameraType } from 'expo-camera';
+import { CameraView, useCameraPermissions } from 'expo-camera';
 import * as MediaLibrary from 'expo-media-library';
 import * as FileSystem from 'expo-file-system';
 import Constants from "expo-constants";
@@ -15,9 +16,10 @@ import * as SecureStore from 'expo-secure-store';
 
 
 export default function CameraScreen() {
-  const [hasPermission, setHasPermission] = useState(null);
+  const [permission, requestPermission] = useCameraPermissions();
+//   const [hasPermission, setHasPermission] = useState(null);
   const [cameraRef, setCameraRef] = useState(null)
-  const [type, setType] = useState(Camera.Constants.Type.back);
+  const [type, setType] = useState('back');
   const [errorVisible, setErrorVisible] = React.useState(false);
   const [succesVisible, setSuccesVisible] = React.useState(false);
   const [alertConfirmVisible, setAlertConfirmVisible] = useState(false);
@@ -28,7 +30,7 @@ export default function CameraScreen() {
   const [altitudeOffset, setAltitudeOffset] = useState("0");
 
   const { manifest } = Constants;
-  const serverUri = `http://${manifest.debuggerHost.split(':').shift()}:5000`;
+  const serverUri =   Constants?.expoConfig?.hostUri ? `http://${Constants.expoConfig.hostUri.split(`:`).shift().concat(`:5000`)}` : `yourapi.com`;
   const msgNoConnection = "No connection to server";
   const msgPressPhoto = "Press to take photo";
   const msgGPSWaiting = "Waiting for GPS signal";
@@ -47,13 +49,13 @@ export default function CameraScreen() {
     setAlertConfirmVisible(!alertConfirmVisible);
   }, [alertConfirmVisible]);
 
-  useEffect(() => {
-    (async () => {
-      const resCamera = await Camera.requestCameraPermissionsAsync();
-      const resMedia = await MediaLibrary.requestPermissionsAsync(false);
-      setHasPermission(resMedia.granted && resCamera.granted);
-    })();
-  }, []);
+//   useEffect(() => {
+//     (async () => {
+//       const resCamera = await Camera.requestCameraPermissionsAsync();
+//       const resMedia = await MediaLibrary.requestPermissionsAsync(false);
+//     //   setHasPermission(resMedia.granted && resCamera.granted);
+//     })();
+//   }, []);
 
   React.useEffect(() => {
     let isMounted = true;
@@ -150,7 +152,7 @@ export default function CameraScreen() {
     if (cameraRef && actualMsgForGeotag) {
       let photo = await cameraRef.takePictureAsync({
         // exif: true,
-        autoFocus: Camera.Constants.AutoFocus.on,
+        autoFocus: 'on',
         quality: 1,
       }).catch(console.error);
       console.log("Photo taken");
@@ -231,16 +233,16 @@ export default function CameraScreen() {
     return color;
 };
   
-  if (hasPermission === null) {
+  if (!permission) {
     return <View />;
   }
-  if (hasPermission === false) {
+  if (!permission.granted) {
     return <Text>No access to camera</Text>;
   }
 
   return (
     <View style={styles.container}>
-      <Camera style={styles.camera} type={type} ref={ref => { setCameraRef(ref) }} autoFocus={Camera.Constants.AutoFocus.on} flashMode={Camera.Constants.FlashMode.auto}>
+      <CameraView style={styles.camera} type={type} ref={ref => { setCameraRef(ref) }} autoFocus={'on'} flashMode={'auto'}>
         <View style={styles.buttonContainer}>
           <TouchableOpacity
             disabled={activityRunning === true ? true : false}
@@ -252,7 +254,7 @@ export default function CameraScreen() {
             <Text style={[styles.text, {fontSize: Dimensions.get('window').width *0.035}]}> {additionalText} </Text>
           </TouchableOpacity>
         </View>
-      </Camera>
+      </CameraView>
       <FancyAlert
         visible={errorVisible}
         // onRequestClose={() => { toggleErrorAlert() }}

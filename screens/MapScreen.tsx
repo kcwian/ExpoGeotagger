@@ -26,7 +26,8 @@ export default function MapScreen({ navigation }: RootTabScreenProps<'Map'>) {
   const mapRef = useRef();
   const activeMarker2 = useRef();
   const { manifest } = Constants;
-  const serverUri = `http://${manifest.debuggerHost.split(':').shift()}:5000`;
+  const serverUri =   Constants?.expoConfig?.hostUri ? `http://${Constants.expoConfig.hostUri.split(`:`).shift().concat(`:5000`)}` : `yourapi.com`;
+//   const serverUri = `http://${manifest.debuggerHost.split(':').shift()}:5000`;
   const keyMapType = "mapType";
 
   useEffect(() => {

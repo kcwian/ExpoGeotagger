@@ -4,6 +4,8 @@ import * as React from 'react';
 import { StyleSheet, TextInput, Button, Keyboard, TouchableOpacity, ScrollView, KeyboardAvoidingView } from 'react-native';
 import * as SecureStore from 'expo-secure-store';
 import { Picker } from '@react-native-picker/picker'
+import { Platform } from 'react-native';
+
 
 export default function SettingsScreen() {
   const [altitudeOffset, setAltitudeOffset] = React.useState("0");

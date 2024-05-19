@@ -22,7 +22,8 @@ export default function CameraScreen3() {
   const [altitudeOffset, setAltitudeOffset] = useState("0");
 
   const { manifest } = Constants;
-  const serverUri = `http://${manifest.debuggerHost.split(':').shift()}:5000`;
+
+  const serverUri =   Constants?.expoConfig?.hostUri ? `http://${Constants.expoConfig.hostUri.split(`:`).shift().concat(`:5000`)}` : `yourapi.com`;
   // const serverUri = "exp://localhost:5000"
   const msgNoConnection = "No connection to server";
   const msgPressPhoto = "Press to take photo";
@@ -192,7 +193,7 @@ export default function CameraScreen3() {
       let formData = new FormData();
       // Assume "photo" is the name of the form field the server expects
       setAdditionalText(msgSendingImage);
-      formData.append('image', { uri: localPhotoUri, name: filename, type });
+      formData.append('image', {uri: localPhotoUri, name: filename, type });
       formData.append('platform', Platform.OS);
       formData.append('GPS', JSON.stringify(actualMsgForGeotag));
       formData.append('altitudeOffset', altitudeOffset);
@@ -278,10 +279,9 @@ export default function CameraScreen3() {
       {getNiceLat()}
       {activityRunning === true && <ActivityIndicator size="large" animating={true} color="black" />}
       <Text> </Text>
-      <TouchableOpacity onPress={handleMainButton} style={styles.button}
+      <TouchableOpacity onPress={handleMainButton}
         disabled={activityRunning === true ? true : false}
         style={[styles.button, { backgroundColor: getMainButtonColor() }]}
-        onPress={handleMainButton}
       >
         {/* <Text style={[styles.text, {fontSize: 14}]}> {additionalText} </Text> */}
         <Text style={styles.text}> GPS Status: {GPSStatus} </Text>
@@ -398,5 +398,8 @@ const styles = StyleSheet.create({
     right: 0,
     top: 0,
     height: Dimensions.get('window').height,
+  },
+  btnText: {
+    color: '#FFFFFF',
   },
 });
