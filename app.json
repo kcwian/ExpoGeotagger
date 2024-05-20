@@ -25,18 +25,28 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "permissions": [
+        "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO"
+      ],
+      "package": "com.krzysztofc.Geotagger"
     },
     "web": {
       "favicon": "./assets/images/favicon.png"
     },
     "plugins": [
-        [
-          "expo-camera",
-          {
-            "cameraPermission": "Allow $(PRODUCT_NAME) to access your camera",
-          }
-        ]
-    ]
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Allow $(PRODUCT_NAME) to access your camera"
+        }
+      ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "28f34bdc-38cf-4146-9b2f-16823445e02c"
+      }
+    }
   }
 }
