@@ -3,6 +3,7 @@
 ### Branch **master**
 - Powinien być ustawiony na urządzeniu, żeby działało też Expo Go
 - Zawiera Mapę Googla
+- Usunięty expo-dev-client oraz odwolanie do eas w pliku **app.json**, aby uniknac problemow z uruchomieniem w Expo Go (prosba o logowanie, tryb dev)
 
 ### Branch **apk**
 - Dodano ustewienie IP Servera 
