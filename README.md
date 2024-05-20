@@ -1,5 +1,12 @@
 ## Expo Geotagger App
 
+### Branch **master**
+- Powinien być ustawiony na urządzeniu, żeby działało też Expo Go
+- Zawiera Mapę Googla
+
+### Branch **apk**
+- Dodano ustewienie IP Servera 
+
 ### Raspberry Pi
 - change metro cache folder to prevent rebuilding each time:
   
@@ -35,3 +42,16 @@ d /tmp 1777 root root -
 - Przejść do **/usr/lib/android-sdk/cmdline-tools/latest/bin/** i zaakceptować licencję ```yes | ./sdkmanager --licenses```
 - Zbudować aplikację lokalnie: ```eas build --platform android --profile production --local```
 - W razie błędów trzeba np. usunąć wybrane pakiety ```yarn remove``` lub zaktualizować inne ```yarn upgrade-interactive --latest```
+
+### Problem z komunikacją z serwerem (.apk):
+- Zainstalować **expo-build-properties** oraz dodać do **app.json**: 
+```      
+      [
+        "expo-build-properties",
+        {
+            "android": {
+                "usesCleartextTraffic": true
+            }
+        }
+      ]
+```
