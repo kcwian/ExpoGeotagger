@@ -214,9 +214,9 @@ export default function CameraScreen() {
             MediaLibrary.createAssetAsync(filePhotoUri).then((asset) => {
               MediaLibrary.getAlbumAsync('Geotagger').then((album) => {
                 if (album == null) {
-                  MediaLibrary.createAlbumAsync('Geotagger', asset, true);
+                  MediaLibrary.createAlbumAsync('Geotagger', asset, false);
                 } else {
-                  MediaLibrary.addAssetsToAlbumAsync([asset], album, true);
+                  MediaLibrary.addAssetsToAlbumAsync([asset], album, false);
                 }
               }).then(() => {
                 FileSystem.deleteAsync(localPhotoUri);
