@@ -16,7 +16,7 @@ import ModalScreen from '../screens/ModalScreen';
 import ModalCamera3Screen from '../screens/ModalCamera3Screen';
 import SettingsScreen from '../screens/Settings';
 import NotFoundScreen from '../screens/NotFoundScreen';
-import MapScreen from '../screens/MapScreen';
+// import MapScreen from '../screens/MapScreen';
 import CameraScreen3 from '../screens/CameraScreen3';
 import CameraScreen from '../screens/CameraScreen';
 import { RootStackParamList, RootTabParamList, RootTabScreenProps } from '../types';
@@ -115,7 +115,7 @@ function BottomTabNavigator() {
           ),
         })}
       />
-      <BottomTab.Screen
+      {/* <BottomTab.Screen
         name="Map"
         component={MapScreen}
         options={({ navigation }: RootTabScreenProps<'Map'>) => ({
@@ -137,7 +137,7 @@ function BottomTabNavigator() {
           //   </Pressable>
           // ),
         })}
-      />
+      /> */}
     </BottomTab.Navigator>
   );
 }

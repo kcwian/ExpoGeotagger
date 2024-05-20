@@ -10,8 +10,10 @@ import { Platform } from 'react-native';
 export default function SettingsScreen() {
   const [altitudeOffset, setAltitudeOffset] = React.useState("0");
   const [mapType, setMapType] = React.useState("standard");
+  const [serverIP, setServerIP] = React.useState("192.168.X.X");
   const keyAltitudeOffset = "altitudeOffset";
   const keyMapType = "mapType";
+  const keyServerIP = "serverIP"
 
   async function saveAltitudeOffset() {
     let value = altitudeOffset;
@@ -25,6 +27,13 @@ export default function SettingsScreen() {
     if (!value || value == null || value == "")
       value = "standard";
     await SecureStore.setItemAsync(keyMapType, value);
+  }
+
+  async function saveServerIP() {
+    let value = serverIP;
+    if (!value || value == null || value == "")
+      value = "192.168.X.X";
+    await SecureStore.setItemAsync(keyServerIP, value);
   }
 
   async function getAltitudeOffset() {
@@ -45,10 +54,20 @@ export default function SettingsScreen() {
     }
   }
 
+  async function getServerIP() {
+    let result = await SecureStore.getItemAsync(keyServerIP);
+    if (result != null) {
+      setServerIP(result);
+    } else {
+      setServerIP("192.168.X.X");
+    }
+  }
+
   React.useEffect(() => {
     let isMounted = true;
     getAltitudeOffset();
     getMapType();
+    getServerIP();
     return () => {
       isMounted = false;
     }
@@ -59,6 +78,11 @@ export default function SettingsScreen() {
     setAltitudeOffset(text);
   }
 
+  function onChangedServerIP(text) {
+    text = text.replace(',', '.');
+    setServerIP(text);
+  }
+
   return (
     <KeyboardAvoidingView style={{ flex: 1 }}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -66,6 +90,19 @@ export default function SettingsScreen() {
       <ScrollView>
         <View style={styles.container}>
           {/* {Add some TextInput components... } */}
+          <View style={styles.item}>
+            <Text style={styles.text}> Server IP</Text>
+            <TextInput
+              style={styles.textInput}
+              keyboardType='numeric'
+              onChangeText={(text) => onChangedServerIP(text)}
+              value={serverIP.toString()}
+              // onPressOut={() => Keyboard.dismiss()}
+            />
+          </View>
+
+          <View style={styles.separator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
+
           <View style={styles.item}>
             <Text style={styles.text}> Antenna mount height</Text>
             <TextInput
@@ -100,6 +137,7 @@ export default function SettingsScreen() {
             onPress={() => {
               saveAltitudeOffset();
               saveMapType();
+              saveServerIP();
             }}
           >
             <Text>Save</Text>

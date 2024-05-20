@@ -25,11 +25,11 @@ const linking: LinkingOptions<RootStackParamList> = {
               CameraScreen3: 'two',
             },
           },
-          Map: {
-            screens: {
-              MapScreen: 'three',
-            },
-          },
+        //   Map: {
+        //     screens: {
+        //       MapScreen: 'three',
+        //     },
+        //   },
         },
       },
       Modal: 'modal',

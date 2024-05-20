@@ -20,10 +20,11 @@ export default function CameraScreen3() {
   const [activityRunning, setActivityRunning] = useState(false);
   const [alertConfirmVisible, setAlertConfirmVisible] = useState(false);
   const [altitudeOffset, setAltitudeOffset] = useState("0");
+  const [serverIP, setServerIP] = useState("192.168.1.100");
 
   const { manifest } = Constants;
 
-  const serverUri =   Constants?.expoConfig?.hostUri ? `http://${Constants.expoConfig.hostUri.split(`:`).shift().concat(`:5000`)}` : `yourapi.com`;
+//   const serverUri =   Constants?.expoConfig?.hostUri ? `http://${Constants.expoConfig.hostUri.split(`:`).shift().concat(`:5000`)}` : `yourapi.com`;
   // const serverUri = "exp://localhost:5000"
   const msgNoConnection = "No connection to server";
   const msgPressPhoto = "Press to take photo";
@@ -32,6 +33,7 @@ export default function CameraScreen3() {
   const msgGettingGPS = "Getting GPS data";
   const msgSendingImage = "Sending Image";
   const keyAltitudeOffset = "altitudeOffset";
+  const keyServerIP = "serverIP"
 
   useEffect(() => {
     (async () => {
@@ -63,6 +65,22 @@ export default function CameraScreen3() {
 
   useEffect(() => {
     let isMounted = true;
+    SecureStore.getItemAsync(keyServerIP).then((result) => {
+      if (result != null)
+        setServerIP(result);
+      else
+        setServerIP("192.168.1.100");
+    }).catch((error) => {
+      console.log(error);
+        setServerIP("192.168.1.100");
+    });
+    return () => {
+      isMounted = false;
+    }
+  }, []);
+
+  useEffect(() => {
+    let isMounted = true;
     const interval = setInterval(() => {
       //GET request
       SecureStore.getItemAsync(keyAltitudeOffset).then((result) => {
@@ -74,6 +92,18 @@ export default function CameraScreen3() {
         console.log(error);
         setAltitudeOffset("0");
       });
+
+      SecureStore.getItemAsync(keyServerIP).then((result) => {
+        if (result != null)
+          setServerIP(result);
+        else
+          setServerIP("192.168.1.100");
+      }).catch((error) => {
+        console.log(error);
+          setServerIP("192.168.1.100");
+      });
+
+      let serverUri = 'http://' + serverIP + ':5000';
       fetch(serverUri + '/lastMessage', {
         method: 'GET',
       })
@@ -107,7 +137,7 @@ export default function CameraScreen3() {
       clearInterval(interval);
       isMounted = false;
     }
-  }, [lastGPSMsg, altitudeOffset]);
+  }, [lastGPSMsg, altitudeOffset, serverIP]);
 
   const toggleConfirmAlert = React.useCallback(() => {
     setAlertConfirmVisible(!alertConfirmVisible);
@@ -155,6 +185,7 @@ export default function CameraScreen3() {
     setActivityRunning(true);
     let actualMsgForGeotag = null;
     // Get last GPS coordinates
+    let serverUri = 'http://' + serverIP + ':5000';
     await fetch(serverUri + '/lastMessage', {
       method: 'GET',
     })
@@ -198,6 +229,7 @@ export default function CameraScreen3() {
       formData.append('GPS', JSON.stringify(actualMsgForGeotag));
       formData.append('altitudeOffset', altitudeOffset);
       console.log("Sending Image");
+      let serverUri = 'http://' + serverIP + ':5000';
       fetch(serverUri + '/image', {
         method: 'POST',
         body: formData,
