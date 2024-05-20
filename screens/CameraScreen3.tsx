@@ -253,9 +253,9 @@ export default function CameraScreen3() {
             MediaLibrary.createAssetAsync(filePhotoUri).then((asset) => {
               MediaLibrary.getAlbumAsync('Geotagger').then((album) => {
                 if (album == null) {
-                  MediaLibrary.createAlbumAsync('Geotagger', asset, false);
+                  MediaLibrary.createAlbumAsync('Geotagger', asset, true);
                 } else {
-                  MediaLibrary.addAssetsToAlbumAsync([asset], album, false);
+                  MediaLibrary.addAssetsToAlbumAsync([asset], album, true);
                 }
               }).then(() => {
                 FileSystem.deleteAsync(localPhotoUri);
