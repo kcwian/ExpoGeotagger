@@ -26,3 +26,12 @@ d /tmp 1777 root root -
 
 ##  Local address instead of IP
 - Add somehow ```export REACT_NATIVE_PACKAGER_HOSTNAME=192.168.0.x``` 
+
+## Budowanie aplikacji do .apk
+- Instalacja EAS (yarn?): ```npm install -g eas-cli``` 
+- Instalacja Android SDK (/usr/lib/android-sdk): ```apt install android-sdk```
+- Pobranie **Command line tools only** (zawiera sdkmanager): https://developer.android.com/studio
+- Umiescić je w katalogu **/usr/lib/android-sdk/cmdline-tools/latest/**
+- Przejść do **/usr/lib/android-sdk/cmdline-tools/latest/bin/** i zaakceptować licencję ```yes | ./sdkmanager --licenses```
+- Zbudować aplikację lokalnie: ```eas build --platform android --profile production --local```
+- W razie błędów trzeba np. usunąć wybrane pakiety ```yarn remove``` lub zaktualizować inne ```yarn upgrade-interactive --latest```
