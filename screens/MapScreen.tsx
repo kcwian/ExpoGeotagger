@@ -12,6 +12,8 @@ import { getDistance, getPreciseDistance } from 'geolib';
 import * as ImagePicker from 'expo-image-picker';
 import {Svg, Image as ImageSvg} from 'react-native-svg';
 import * as SecureStore from 'expo-secure-store';
+import { LogBox } from 'react-native';
+LogBox.ignoreAllLogs();//Ignore all log notifications
 
 export default function MapScreen({ navigation }: RootTabScreenProps<'Map'>) {
 

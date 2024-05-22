@@ -10,6 +10,8 @@ import { FancyAlert } from 'react-native-expo-fancy-alerts';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Dimensions } from 'react-native';
 import * as SecureStore from 'expo-secure-store';
+import { LogBox } from 'react-native';
+LogBox.ignoreAllLogs();//Ignore all log notifications
 
 export default function CameraScreen3() {
   const [image, setImage] = useState(null)

@@ -59,6 +59,11 @@ export default function SettingsScreen() {
     setAltitudeOffset(text);
   }
 
+  function onChangedMap(text) {
+    // text = text.replace(',', '.');
+    setMapType(text);
+  }
+
   return (
     <KeyboardAvoidingView style={{ flex: 1 }}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -81,18 +86,14 @@ export default function SettingsScreen() {
           <View style={styles.separator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
 
           <View style={styles.item}>
-            <Text style={styles.text}> Map type:</Text>
-            <Picker
-              selectedValue={mapType}
-              mode="dropdown"
-              itemStyle={{fontSize: 14}}
-              style={{ color: 'red', flex: 0.5, borderRadius: 0, alignContent: 'center', alignSelf: 'center', justifyContent: 'center' }}
-              onValueChange={(itemValue, itemIndex) => setMapType(itemValue)}
-            >
-              <Picker.Item label="Street" value="standard" />
-              <Picker.Item label="Satellite" value="satellite" />
-              <Picker.Item label="Hybrid" value="hybrid" />
-            </Picker>
+            <Text style={styles.text}> Map type (standard, satellite, hybrid)</Text>
+            <TextInput
+              style={styles.textInput}
+              keyboardType='default'
+              onChangeText={(text) => onChangedMap(text)}
+              value={mapType.toString()}
+              // onPressOut={() => Keyboard.dismiss()}
+            />
           </View>
           <View style={styles.separator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
           <TouchableOpacity
